@@ -5,7 +5,7 @@ import LoginPage from './components/LoginPage'; // LoginPageをインポート
 import CalendarPage from './components/CalendarPage'; // 後で作成するCalendarPageもインポート
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // ログイン状態を管理するstate
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // ログイン状態を管理するstate
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true); // ログイン成功したらisLoggedInをtrueにする
