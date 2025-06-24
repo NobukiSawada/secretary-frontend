@@ -33,7 +33,9 @@ const DayPage = () => {
     // IDが数値型の場合、EventDetailPageのallDummyEventsは文字列型にしているので注意が必要です
     // 例: { id: "1", ... } と { id: 1, ... } は別物とみなされます。
     // DayPageのdummyEventsもIDを文字列型に統一することを推奨します。
-    setEvents(selectedDateEvents.map(event => ({ ...event, id: String(event.id) }))); // IDを文字列に変換
+    setEvents(
+      selectedDateEvents.map((event) => ({ ...event, id: String(event.id) }))
+    ); // IDを文字列に変換
   }, [date]);
 
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
@@ -60,7 +62,7 @@ const DayPage = () => {
       const collidingEvents = arrangedEvents.filter((aEvent) => {
         const aStartMin = timeToMinutes(aEvent.start);
         const aEndMin = timeToMinutes(aEvent.end);
-        return (startMin < aEndMin && endMin > aStartMin);
+        return startMin < aEndMin && endMin > aStartMin;
       });
 
       let maxOverlapCount = 0;
@@ -68,7 +70,7 @@ const DayPage = () => {
 
       if (collidingEvents.length > 0) {
         const columnsOccupied = new Set();
-        collidingEvents.forEach(colEvent => {
+        collidingEvents.forEach((colEvent) => {
           if (colEvent.column !== undefined) {
             columnsOccupied.add(colEvent.column);
           }
@@ -79,10 +81,9 @@ const DayPage = () => {
         }
 
         maxOverlapCount = Math.max(maxOverlapCount, availableColumn + 1);
-        collidingEvents.forEach(colEvent => {
+        collidingEvents.forEach((colEvent) => {
           maxOverlapCount = Math.max(maxOverlapCount, colEvent.totalColumns);
         });
-
       } else {
         maxOverlapCount = 1;
         availableColumn = 0;
@@ -92,9 +93,15 @@ const DayPage = () => {
       event.totalColumns = maxOverlapCount;
       arrangedEvents.push(event);
 
-      arrangedEvents.forEach(aEvent => {
-        if (startMin < timeToMinutes(aEvent.end) && endMin > timeToMinutes(aEvent.start)) {
-          aEvent.totalColumns = Math.max(aEvent.totalColumns || 1, maxOverlapCount);
+      arrangedEvents.forEach((aEvent) => {
+        if (
+          startMin < timeToMinutes(aEvent.end) &&
+          endMin > timeToMinutes(aEvent.start)
+        ) {
+          aEvent.totalColumns = Math.max(
+            aEvent.totalColumns || 1,
+            maxOverlapCount
+          );
         }
       });
     });
@@ -141,7 +148,9 @@ const DayPage = () => {
       <div className="day-page-header">
         <button onClick={() => navigate(-1)}>&lt; カレンダーに戻る</button>
         <h2>{date} の予定</h2>
-        <button onClick={handleAddEventClick} className="add-event-button">予定を追加</button>
+        <button onClick={handleAddEventClick} className="add-event-button">
+          予定を追加
+        </button>
       </div>
 
       <div className="day-view-grid">
@@ -165,15 +174,21 @@ const DayPage = () => {
                 onClick={() => handleEventClick(event.id)}
               >
                 <div className="event-title">{event.title}</div>
-                <div className="event-time">
+                {/* 以下の時間の表示を削除 */}
+                {/* <div className="event-time">
                   {event.start} - {event.end}
                 </div>
+                */}
               </div>
             ))
           )}
           {/* 1時間ごとの区切り線 */}
           {timeSlots.map((_, index) => (
-            <div key={`line-${index}`} className="hour-line" style={{ top: `${index * 60}px` }}></div>
+            <div
+              key={`line-${index}`}
+              className="hour-line"
+              style={{ top: `${index * 60}px` }}
+            ></div>
           ))}
         </div>
       </div>
