@@ -1,18 +1,27 @@
-/* src/components/DayPage.css */
+/* src/components/CalendarPage.css */
 
-.day-page-container {
+.calendar-container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  max-width: 900px;
-  margin: 30px auto;
   padding: 25px;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
+  max-width: 850px;
+  margin: 30px auto;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   background-color: #fcfcfc;
 }
 
-.day-page-header {
+.calendar-container h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+  font-weight: 600;
+}
+
+.calendar-header {
   display: flex;
+  /* Flexboxを使って要素を横並びに */
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
@@ -22,137 +31,126 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.day-page-header h2 {
+.calendar-header h3 {
   margin: 0;
-  color: #2c3e50;
-  font-size: 2em;
-  font-weight: 600;
-  flex-grow: 1;
-  text-align: center;
+  color: #34495e;
+  font-size: 1.8em;
+  font-weight: 500;
 }
 
-.day-page-header button {
-  background-color: #6c757d;
+.calendar-header button {
+  background-color: #3498db;
   color: white;
   border: none;
-  padding: 8px 15px;
+  padding: 10px 18px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.95em;
+  font-size: 1.1em;
   transition: background-color 0.3s ease, transform 0.2s ease;
-  min-width: 120px;
+  min-width: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.day-page-header button:hover {
-  background-color: #5a6268;
-  transform: translateY(-1px);
+.calendar-header button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
 }
 
-.day-page-header .add-event-button {
-  background-color: #28a745;
+.calendar-header button:active {
+  transform: translateY(0);
 }
 
-.day-page-header .add-event-button:hover {
-  background-color: #218838;
-}
-
-.day-view-grid {
-  display: flex;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #ffffff;
-}
-
-.time-axis {
-  width: 80px;
-  flex-shrink: 0;
-  border-right: 1px solid #eee;
-  background-color: #f8f9fa;
-  padding-top: 10px;
-}
-
-.time-slot-label {
-  height: 60px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  font-size: 0.9em;
-  color: #555;
-  padding-top: 5px;
-}
-
-.event-area {
-  flex-grow: 1;
-  position: relative;
-  min-height: calc(24 * 60px + 20px);
-  /* 24時間分の高さ + 余白 */
-  padding: 10px;
-  /* イベントエリア内のパディング */
-}
-
-.no-events {
+/* --- ここが最も重要です --- */
+.calendar-grid {
+  display: grid;
+  /* グリッドレイアウトを適用 */
+  grid-template-columns: repeat(7, 1fr);
+  /* 7列（曜日分）を均等幅に */
+  gap: 8px;
+  /* グリッドアイテム間の隙間 */
   text-align: center;
-  color: #777;
-  margin-top: 50px;
-  font-style: italic;
 }
 
-.hour-line {
-  position: absolute;
-  /* left: 0;  これらの行は不要になります。*/
-  /* right: 0; */
-  width: calc(100% - 20px);
-  /* event-areaのpaddingを考慮 */
-  left: 10px;
-  /* event-areaのpadding-leftに合わせる */
-  border-top: 1px dashed #eee;
-  z-index: 0;
+.week-days {
+  display: contents;
+  /* 子要素がグリッドの直接の子になるように */
 }
 
-.hour-line:first-child {
-  border-top: none;
-}
-
-
-.event-block {
-  position: absolute;
-  /* left: 10px;  これらの行はJavaScriptで設定されるため削除 */
-  /* right: 10px; */
-  /* width: calc(100% - 20px); 代わりにJavaScriptでwidthが設定される */
-  background-color: #85c1e9;
+.day-name {
+  font-weight: 600;
+  padding: 12px 0;
+  background-color: #ecf0f1;
   border-radius: 5px;
-  padding: 8px 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  cursor: pointer;
-  z-index: 1;
-  border-left: 5px solid #3498db;
+  color: #444;
+  font-size: 1.1em;
+}
+
+/* 曜日ごとの色分け */
+.day-name:nth-child(1) {
+  /* 日曜日 */
+  color: #e74c3c;
+}
+
+.day-name:nth-child(7) {
+  /* 土曜日 */
+  color: #27ae60;
+}
+
+.day-cell {
+  padding: 15px 5px;
+  border: 1px solid #ebf2f7;
+  border-radius: 5px;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 3px;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 100px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  font-size: 1.2em;
+  font-weight: 500;
+  color: #333;
 }
 
-.event-block:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-  background-color: #7ab8e2;
+.day-cell:hover {
+  background-color: #eef7fc;
+  border-color: #aed6f1;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
 }
 
-.event-title {
+.day-cell.current-month {
+  /* スタイルは基本スタイルと.todayで対応 */
+}
+
+.day-cell.other-month {
+  color: #b0b0b0;
+  background-color: #f9fbfd;
+  cursor: default;
+}
+
+.day-cell.other-month:hover {
+  background-color: #f9fbfd;
+  border-color: #ebf2f7;
+  box-shadow: none;
+}
+
+
+.day-cell.today {
+  background-color: #dbe9f6;
+  border: 2px solid #3498db;
   font-weight: bold;
   color: #2c3e50;
-  font-size: 0.95em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
 }
 
-.event-time {
-  font-size: 0.8em;
-  color: #4a6a8c;
+/* 将来的なイベント表示のためのスタイル */
+.day-cell .event-indicator {
+  width: 6px;
+  height: 6px;
+  background-color: #f39c12;
+  border-radius: 50%;
+  margin-top: 5px;
 }
