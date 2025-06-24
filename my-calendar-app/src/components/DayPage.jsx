@@ -67,7 +67,8 @@ const DayPage = () => {
       <div className="day-page-header">
         <button onClick={() => navigate(-1)}>&lt; カレンダーに戻る</button>
         <h2>{date} の予定</h2>
-        <button className="add-event-button">予定を追加</button> {/* 将来的に使うボタン */}
+        <button className="add-event-button">予定を追加</button>{" "}
+        {/* 将来的に使うボタン */}
       </div>
 
       <div className="day-view-grid">
@@ -97,7 +98,11 @@ const DayPage = () => {
           )}
           {/* 1時間ごとの区切り線 (任意) */}
           {timeSlots.map((_, index) => (
-            <div key={`line-${index}`} className="hour-line" style={{ top: `${index * 60}px` }}></div>
+            <div
+              key={`line-${index}`}
+              className="hour-line"
+              style={{ top: `${index * 60}px` }}
+            ></div>
           ))}
         </div>
       </div>

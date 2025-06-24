@@ -15,9 +15,13 @@ function App() {
   };
 
   return (
-    <Router> {/* アプリ全体を <Router> でラップ */}
+    <Router>
+      {" "}
+      {/* アプリ全体を <Router> でラップ */}
       <div className="App">
-        <Routes> {/* ルートの定義 */}
+        <Routes>
+          {" "}
+          {/* ルートの定義 */}
           <Route
             path="/"
             element={
@@ -28,7 +32,8 @@ function App() {
               )
             }
           />
-          <Route path="/day/:date" element={<DayPage />} /> {/* DayPageへのルート */}
+          <Route path="/day/:date" element={<DayPage />} />{" "}
+          {/* DayPageへのルート */}
           {/* 他のルートもここに追加できます */}
         </Routes>
       </div>

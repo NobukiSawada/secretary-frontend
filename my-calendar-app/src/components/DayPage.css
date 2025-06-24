@@ -1,7 +1,7 @@
 /* src/components/DayPage.css */
 
 .day-page-container {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   max-width: 900px;
   margin: 30px auto;
   padding: 25px;
@@ -41,7 +41,9 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.95em;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
   min-width: 120px;
 }
 
@@ -125,7 +127,6 @@
 .hour-line:first-child {
   border-top: none;
 }
-
 
 .event-block {
   position: absolute;

@@ -39,7 +39,7 @@ const CalendarPage = () => {
     if (dayObject.isCurrentMonth) {
       // YYYY-MM-DD 形式の文字列を生成 (月は1ベースなので+1する)
       const dateString = `${dayObject.year}-${String(
-        dayObject.month + 1
+        dayObject.month + 1,
       ).padStart(2, "0")}-${String(dayObject.date).padStart(2, "0")}`;
       navigate(`/day/${dateString}`);
     }
