@@ -1,6 +1,6 @@
 // src/components/CalendarPage.jsx
-import React, { useState } from 'react';
-import './CalendarPage.css';
+import React, { useState } from "react";
+import "./CalendarPage.css";
 
 const CalendarPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -9,10 +9,20 @@ const CalendarPage = () => {
   const month = currentDate.getMonth();
 
   const monthNames = [
-    '1月', '2月', '3月', '4月', '5月', '6月',
-    '7月', '8月', '9月', '10月', '11月', '12月'
+    "1月",
+    "2月",
+    "3月",
+    "4月",
+    "5月",
+    "6月",
+    "7月",
+    "8月",
+    "9月",
+    "10月",
+    "11月",
+    "12月",
   ];
-  const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+  const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
 
   const goToPreviousMonth = () => {
     // 現在の月の1日前を設定することで、前の月の最終日を取得し、その月へ移動
@@ -42,22 +52,21 @@ const CalendarPage = () => {
       days.unshift({
         date: prevMonthDay,
         isCurrentMonth: false,
-        isToday: false
+        isToday: false,
       });
     }
 
     // 4. 現在の月の日付を追加
     const today = new Date();
     for (let i = 1; i <= lastDayOfMonth; i++) {
-      const isToday = (
+      const isToday =
         year === today.getFullYear() &&
         month === today.getMonth() &&
-        i === today.getDate()
-      );
+        i === today.getDate();
       days.push({
         date: i,
         isCurrentMonth: true,
-        isToday: isToday
+        isToday: isToday,
       });
     }
 
@@ -69,7 +78,7 @@ const CalendarPage = () => {
       days.push({
         date: i,
         isCurrentMonth: false,
-        isToday: false
+        isToday: false,
       });
     }
 
@@ -83,20 +92,24 @@ const CalendarPage = () => {
       <h2>私のカレンダー</h2>
       <div className="calendar-header">
         <button onClick={goToPreviousMonth}>&lt; 前の月</button>
-        <h3>{year}年 {monthNames[month]}</h3>
+        <h3>
+          {year}年 {monthNames[month]}
+        </h3>
         <button onClick={goToNextMonth}>次の月 &gt;</button>
       </div>
       <div className="calendar-grid">
         <div className="week-days">
           {dayNames.map((day, index) => (
-            <div key={index} className="day-name">{day}</div>
+            <div key={index} className="day-name">
+              {day}
+            </div>
           ))}
         </div>
         {/* 日付セルを描画 --- ここも追加・修正する部分 ---*/}
         {calendarDays.map((day, index) => (
           <div
             key={index}
-            className={`day-cell ${day.isCurrentMonth ? 'current-month' : 'other-month'} ${day.isToday ? 'today' : ''}`}
+            className={`day-cell ${day.isCurrentMonth ? "current-month" : "other-month"} ${day.isToday ? "today" : ""}`}
           >
             {day.date}
           </div>

@@ -1,41 +1,47 @@
 // src/components/LoginPage.jsx
-import React, { useState } from 'react';
-import './LoginPage.css';
+import React, { useState } from "react";
+import "./LoginPage.css";
 
 const LoginPage = ({ onLoginSuccess }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   // 新しいステートを追加：新規登録モードかどうかを管理
   const [isRegistering, setIsRegistering] = useState(false);
   // 新規登録用のパスワード確認フィールドのステートも追加
-  const [confirmPassword, setConfirmPassword] = useState('');
-
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
 
-    console.log('Login Attempt - Username:', username, 'Password:', password);
+    console.log("Login Attempt - Username:", username, "Password:", password);
 
     // --- 仮のログイン検証ロジック ---
-    if (username === 'testuser' && password === 'password123') {
-      alert('ログイン成功！');
+    if (username === "testuser" && password === "password123") {
+      alert("ログイン成功！");
       onLoginSuccess();
     } else {
-      alert('ユーザー名またはパスワードが間違っています。');
-      setPassword(''); // パスワードをクリア
+      alert("ユーザー名またはパスワードが間違っています。");
+      setPassword(""); // パスワードをクリア
     }
   };
 
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
 
-    console.log('Register Attempt - Username:', username, 'Password:', password, 'Confirm Password:', confirmPassword);
+    console.log(
+      "Register Attempt - Username:",
+      username,
+      "Password:",
+      password,
+      "Confirm Password:",
+      confirmPassword,
+    );
 
     // --- 仮の新規登録検証ロジック ---
     if (password !== confirmPassword) {
-      alert('パスワードと確認用パスワードが一致しません。');
-      setPassword('');
-      setConfirmPassword('');
+      alert("パスワードと確認用パスワードが一致しません。");
+      setPassword("");
+      setConfirmPassword("");
       return;
     }
 
@@ -45,9 +51,9 @@ const LoginPage = ({ onLoginSuccess }) => {
     // 新規登録成功後、ログインフォームに戻る
     setIsRegistering(false);
     // 入力フィールドをクリアする
-    setUsername('');
-    setPassword('');
-    setConfirmPassword('');
+    setUsername("");
+    setPassword("");
+    setConfirmPassword("");
   };
 
   return (
@@ -94,8 +100,11 @@ const LoginPage = ({ onLoginSuccess }) => {
             <button type="submit">登録</button>
           </form>
           <p className="toggle-form-link">
-            アカウントをお持ちですか？{' '}
-            <button className="link-button" onClick={() => setIsRegistering(false)}>
+            アカウントをお持ちですか？{" "}
+            <button
+              className="link-button"
+              onClick={() => setIsRegistering(false)}
+            >
               ログイン
             </button>
           </p>
@@ -130,8 +139,11 @@ const LoginPage = ({ onLoginSuccess }) => {
             <button type="submit">ログイン</button>
           </form>
           <p className="toggle-form-link">
-            アカウントをお持ちではありませんか？{' '}
-            <button className="link-button" onClick={() => setIsRegistering(true)}>
+            アカウントをお持ちではありませんか？{" "}
+            <button
+              className="link-button"
+              onClick={() => setIsRegistering(true)}
+            >
               新規登録
             </button>
           </p>

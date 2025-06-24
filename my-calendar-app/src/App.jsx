@@ -1,8 +1,8 @@
 // src/App.jsx
-import React, { useState } from 'react';
-import './App.css';
-import LoginPage from './components/LoginPage'; // LoginPageをインポート
-import CalendarPage from './components/CalendarPage'; // 後で作成するCalendarPageもインポート
+import React, { useState } from "react";
+import "./App.css";
+import LoginPage from "./components/LoginPage"; // LoginPageをインポート
+import CalendarPage from "./components/CalendarPage"; // 後で作成するCalendarPageもインポート
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // ログイン状態を管理するstate
