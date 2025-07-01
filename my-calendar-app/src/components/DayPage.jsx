@@ -34,7 +34,7 @@ const DayPage = () => {
     // 例: { id: "1", ... } と { id: 1, ... } は別物とみなされます。
     // DayPageのdummyEventsもIDを文字列型に統一することを推奨します。
     setEvents(
-      selectedDateEvents.map((event) => ({ ...event, id: String(event.id) }))
+      selectedDateEvents.map((event) => ({ ...event, id: String(event.id) })),
     ); // IDを文字列に変換
   }, [date]);
 
@@ -100,7 +100,7 @@ const DayPage = () => {
         ) {
           aEvent.totalColumns = Math.max(
             aEvent.totalColumns || 1,
-            maxOverlapCount
+            maxOverlapCount,
           );
         }
       });

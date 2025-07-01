@@ -17,9 +17,15 @@ function App() {
   };
 
   return (
-    <Router> {/* アプリ全体を BrowserRouter でラップ */}
-      <div className="App"> {/* 全てのルートを含む親コンポーネント */}
-        <Routes> {/* ルートの定義を開始 */}
+    <Router>
+      {" "}
+      {/* アプリ全体を BrowserRouter でラップ */}
+      <div className="App">
+        {" "}
+        {/* 全てのルートを含む親コンポーネント */}
+        <Routes>
+          {" "}
+          {/* ルートの定義を開始 */}
           <Route
             path="/"
             element={
