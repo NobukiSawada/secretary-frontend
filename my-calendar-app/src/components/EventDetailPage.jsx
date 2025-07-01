@@ -179,8 +179,8 @@ const EventDetailPage = () => {
       console.log("イベントを更新:", newOrUpdatedEvent);
       setAllDummyEvents((prevEvents) =>
         prevEvents.map((e) =>
-          e.id === newOrUpdatedEvent.id ? newOrUpdatedEvent : e
-        )
+          e.id === newOrUpdatedEvent.id ? newOrUpdatedEvent : e,
+        ),
       );
       alert("イベントを更新しました (ダミー)！");
       setEvent(newOrUpdatedEvent);
@@ -194,7 +194,7 @@ const EventDetailPage = () => {
     }
     console.log("イベントを削除:", event.id);
     setAllDummyEvents((prevEvents) =>
-      prevEvents.filter((e) => e.id !== event.id)
+      prevEvents.filter((e) => e.id !== event.id),
     );
     alert("イベントを削除しました (ダミー)！");
     navigate(`/day/${event.date}`);
