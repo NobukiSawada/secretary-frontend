@@ -1,10 +1,9 @@
-// src/components/CalendarPage.jsx
+// src/components/MasculineCalendarPage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./CalendarPage.css";
+import "./MasculineCalendarPage.css";
 
-// CalendarPage コンポーネントは onToggleMode プロップを受け取る
-const CalendarPage = ({ onToggleMode }) => {
+const MasculineCalendarPage = ({ onToggleMode }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const year = currentDate.getFullYear();
@@ -37,7 +36,9 @@ const CalendarPage = ({ onToggleMode }) => {
 
   const handleDayClick = (dayObject) => {
     if (dayObject.isCurrentMonth) {
-      const dateString = `${dayObject.year}-${String(dayObject.month + 1).padStart(2, "0")}-${String(dayObject.date).padStart(2, "0")}`;
+      const dateString = `${dayObject.year}-${String(
+        dayObject.month + 1,
+      ).padStart(2, "0")}-${String(dayObject.date).padStart(2, "0")}`;
       navigate(`/day/${dateString}`);
     }
   };
@@ -91,21 +92,30 @@ const CalendarPage = ({ onToggleMode }) => {
   const calendarDays = generateCalendarDays();
 
   return (
-    <div className="calendar-container">
-      <h2>私のカレンダー</h2>
-      <div className="calendar-header">
-        <button onClick={goToPreviousMonth}>&lt; 前の月</button>
+    <div className="masculine-calendar-container">
+      <div className="masculine-message">🔥 Just Do It 🔥</div>
+      {/* 漢モードのヘッダー */}
+      <div className="masculine-header">
+        <button onClick={goToPreviousMonth} className="nav-button">
+          &lt; 前の月
+        </button>
         <h3>
           {year}年 {monthNames[month]}
         </h3>
-        <button onClick={goToNextMonth}>次の月 &gt;</button>
+        <button onClick={goToNextMonth} className="nav-button">
+          次の月 &gt;
+        </button>
         {/* ★変更: onToggleMode を呼び出す ★ */}
-        <button onClick={onToggleMode}>漢モードへ</button>
+        <button onClick={onToggleMode} className="toggle-mode-button">
+          ジェントルモードへ
+        </button>
       </div>
-      <div className="calendar-grid">
-        <div className="week-days">
+
+      {/* 漢モードのカレンダーグリッド */}
+      <div className="masculine-calendar-grid">
+        <div className="masculine-week-days">
           {dayNames.map((day, index) => (
-            <div key={index} className="day-name">
+            <div key={index} className="masculine-day-name">
               {day}
             </div>
           ))}
@@ -114,7 +124,7 @@ const CalendarPage = ({ onToggleMode }) => {
           <div
             key={index}
             onClick={() => handleDayClick(day)}
-            className={`day-cell ${day.isCurrentMonth ? "current-month" : "other-month"} ${day.isToday ? "today" : ""}`}
+            className={`masculine-day-cell ${day.isCurrentMonth ? "current-month" : "other-month"} ${day.isToday ? "today" : ""}`}
           >
             {day.date}
           </div>
@@ -124,4 +134,4 @@ const CalendarPage = ({ onToggleMode }) => {
   );
 };
 
-export default CalendarPage;
+export default MasculineCalendarPage;

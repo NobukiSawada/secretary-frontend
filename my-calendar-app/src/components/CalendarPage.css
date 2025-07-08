@@ -5,7 +5,9 @@
   padding: 25px;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
-  max-width: 850px;
+  /* ★ここを変更します！★ */
+  max-width: 1000px;
+  /* 例: 850px から 1000px へ変更。画面に合わせて調整してください。 */
   margin: 30px auto;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   background-color: #fcfcfc;

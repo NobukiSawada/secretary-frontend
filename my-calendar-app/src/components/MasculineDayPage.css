@@ -1,0 +1,189 @@
+/* src/components/MasculineDayPage.css */
+
+.masculine-day-page-container {
+  font-family: "Arial Black", sans-serif;
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 30px;
+  /* パディングを増やす */
+  border: 1px solid #333;
+  /* 暗いボーダー */
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  /* 強めの影 */
+  background-color: #1a1a1a;
+  /* 濃い背景 */
+  color: #eee;
+  /* 明るい文字色 */
+}
+
+.masculine-day-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  /* マージンを増やす */
+  background-color: #222;
+  /* より濃い背景 */
+  padding: 15px 25px;
+  /* パディングを増やす */
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 1px solid #444;
+}
+
+.masculine-day-page-header h2 {
+  margin: 0;
+  color: #ff4500;
+  /* 炎のような赤オレンジ */
+  font-size: 2.5em;
+  /* フォントサイズを大きく */
+  font-weight: bold;
+  flex-grow: 1;
+  text-align: center;
+  text-shadow: 1px 1px 3px rgba(255, 0, 0, 0.7);
+  /* 燃えるような影 */
+}
+
+.masculine-day-page-header button {
+  background-color: #666;
+  color: white;
+  border: 1px solid #888;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1em;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+  min-width: 120px;
+}
+
+.masculine-day-page-header button:hover {
+  background-color: #888;
+  transform: translateY(-1px);
+}
+
+.masculine-day-page-header .masculine-add-event-button {
+  background-color: #008000;
+  /* 濃い緑 */
+  border: 1px solid #00a000;
+}
+
+.masculine-day-page-header .masculine-add-event-button:hover {
+  background-color: #00aa00;
+}
+
+.masculine-day-view-grid {
+  display: flex;
+  border: 1px solid #333;
+  /* 濃いボーダー */
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #0d0d0d;
+  /* さらに濃い背景 */
+}
+
+.masculine-time-axis {
+  width: 90px;
+  /* 幅を広げる */
+  flex-shrink: 0;
+  border-right: 1px solid #333;
+  background-color: #1a1a1a;
+  padding-top: 15px;
+  /* パディングを増やす */
+  color: #ccc;
+}
+
+.masculine-time-slot-label {
+  height: 60px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-size: 1em;
+  /* フォントサイズを調整 */
+  color: #999;
+  padding-top: 5px;
+}
+
+.masculine-event-area {
+  flex-grow: 1;
+  position: relative;
+  min-height: calc(24 * 60px + 30px);
+  /* 高さ調整 */
+  padding: 15px;
+  /* パディングを増やす */
+}
+
+.no-events {
+  text-align: center;
+  color: #777;
+  margin-top: 50px;
+  font-style: italic;
+}
+
+.masculine-hour-line {
+  position: absolute;
+  width: calc(100% - 30px);
+  /* event-areaのpaddingを考慮 */
+  left: 15px;
+  /* event-areaのpadding-leftに合わせる */
+  border-top: 1px dashed #444;
+  /* 暗い点線 */
+  z-index: 0;
+}
+
+.masculine-hour-line:first-child {
+  border-top: none;
+}
+
+.masculine-event-block {
+  position: absolute;
+  background-color: #8b0000;
+  /* 濃い赤 */
+  border-radius: 5px;
+  padding: 10px 12px;
+  /* パディングを増やす */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+  /* 強めの影 */
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 1;
+  border-left: 5px solid #ff4500;
+  /* 炎のようなアクセントライン */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  /* ギャップを増やす */
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+}
+
+.masculine-event-block:hover {
+  box-shadow: 0 5px 12px rgba(255, 69, 0, 0.5);
+  /* 炎の影を強調 */
+  transform: translateY(-2px);
+  background-color: #b22222;
+  /* ホバーで明るい赤 */
+}
+
+.masculine-event-title {
+  font-weight: bold;
+  color: #fff;
+  /* 白い文字 */
+  font-size: 1.05em;
+  /* フォントサイズを調整 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
+}
+
+.masculine-event-time {
+  font-size: 0.9em;
+  color: #ffcccb;
+  /* 薄い赤 */
+}
