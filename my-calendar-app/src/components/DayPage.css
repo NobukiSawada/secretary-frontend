@@ -71,28 +71,49 @@
   background-color: #ffffff;
 }
 
+/* src/components/DayPage.css */
+
 .time-axis {
   width: 80px;
-  /* 時間軸の幅 */
   flex-shrink: 0;
-  /* 縮まないように */
   border-right: 1px solid #eee;
   background-color: #f8f9fa;
-  padding-top: 10px;
-  /* 時間軸の表示開始位置調整 */
+  padding-top: 0;
+  /* ★変更: padding-top を 0 にして、0:00 の線とラベルの位置関係を正確にする ★ */
 }
 
 .time-slot-label {
   height: 60px;
-  /* 1時間あたりの高さ */
   display: flex;
   align-items: flex-start;
-  /* 時間ラベルを上端に寄せる */
+  /* 上端揃えを維持 */
   justify-content: center;
   font-size: 0.9em;
   color: #555;
-  padding-top: 5px;
-  /* 時間表示を少し下にずらす */
+  padding-top: 0;
+  /* ★変更: padding-top を 0 にして、CSSで直接調整せず、相対位置で調整 ★ */
+  position: relative;
+  /* relative を追加して top を使えるように */
+  top: -8px;
+  /* ★追加: 負の値で上にずらす。これで時間線に合わせる。値は微調整 ★ */
+}
+
+.time-slot-label.hour-label-zero {
+  visibility: hidden;
+  /* 00:00 ラベルを非表示 */
+}
+
+.hour-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed #eee;
+  z-index: 0;
+}
+
+/* ★変更: hour-line:first-child のスタイルを削除し、0:00 の線も表示する ★ */
+.hour-line:first-child {
+  /* border-top: none; この行を削除 */
 }
 
 .event-area {
@@ -111,21 +132,6 @@
   color: #777;
   margin-top: 50px;
   font-style: italic;
-}
-
-.hour-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  border-top: 1px dashed #eee;
-  /* 時間ごとの点線 */
-  z-index: 0;
-  /* イベントブロックの下に表示 */
-}
-
-/* 0:00 の線は不要なので、最初の線は非表示にするなど調整してもよい */
-.hour-line:first-child {
-  border-top: none;
 }
 
 .event-block {
@@ -178,8 +184,11 @@
   position: absolute;
   left: 0;
   right: 0;
-  background-color: rgba(40, 167, 69, 0.3); /* 半透明の緑 */
+  background-color: rgba(40, 167, 69, 0.3);
+  /* 半透明の緑 */
   border: 1px dashed #28a745;
-  z-index: 5; /* 時間線より手前、イベントより奥 */
-  pointer-events: none; /* この要素自身がマウスイベントを妨げないように */
+  z-index: 5;
+  /* 時間線より手前、イベントより奥 */
+  pointer-events: none;
+  /* この要素自身がマウスイベントを妨げないように */
 }
