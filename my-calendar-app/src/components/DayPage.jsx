@@ -161,15 +161,14 @@ const DayPage = () => {
       const startTimeStr = formatTime(startMin);
       const endTimeStr = formatTime(endMin);
 
-      // ISO 8601 形式 (JST) の文字列に変換
-      const getJSTISOString = (timeStr) => {
+      // ISO 8601 形式の文字列に変換
+      const getISOString = (timeStr) => {
         // `timeStr` is already formatted as HH:mm.
-        // We assume the date and time are in JST and append the JST offset.
-        return `${date}T${timeStr}:00+09:00`;
+        return `${date}T${timeStr}:00`;
       };
 
-      const freeTimeStart = getJSTISOString(startTimeStr);
-      const freeTimeEnd = getJSTISOString(endTimeStr);
+      const freeTimeStart = getISOString(startTimeStr);
+      const freeTimeEnd = getISOString(endTimeStr);
 
       // JSON形式で出力
       const jsonData = [
