@@ -1,30 +1,20 @@
 // src/components/MasculineDayPage.jsx
-import React, { useState, useEffect, useRef } from "react"; // useRef を追加
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "./MasculineDayPage.css"; // 漢モード用のCSSファイル
+import "./MasculineDayPage.css";
 
 const MasculineDayPage = () => {
   const { date } = useParams();
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
-  const eventAreaRef = useRef(null); // event-areaへの参照
+  const eventAreaRef = useRef(null);
 
-  // --- ドラッグ操作のための状態 ---
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartPos, setDragStartPos] = useState(null);
   const [dragCurrentPos, setDragCurrentPos] = useState(null);
 
-  // --- ダミーイベントデータ ---
   const allDummyEvents = [
-    {
-      id: "1",
-      title: "チームミーティング",
-      start: "10:00",
-      end: "11:30",
-      date: "2025-06-24",
-      description: "週次報告と進捗確認",
-      location: "オンライン",
-    },
+    { id: "1", title: "チームミーティング", start: "10:00", end: "11:30", date: "2025-06-24", description: "週次報告と進捗確認", location: "オンライン" },
     // ... 他のイベントデータ
   ];
 
@@ -37,14 +27,12 @@ const MasculineDayPage = () => {
     );
   }, [date]);
 
-  // --- 時間とピクセルの変換定数 ---
   const PX_PER_HOUR = 60;
   const timeToMinutes = (time) => {
     const [hour, minute] = time.split(":").map(Number);
     return hour * 60 + minute;
   };
 
-  // --- イベントレイアウト計算ロジック (変更なし) ---
   const calculateEventLayout = (allEvents) => {
     const sortedEvents = [...allEvents].sort(
       (a, b) => timeToMinutes(a.start) - timeToMinutes(b.start),
@@ -72,7 +60,7 @@ const MasculineDayPage = () => {
         }
         maxOverlapCount = Math.max(maxOverlapCount, availableColumn + 1);
         collidingEvents.forEach((colEvent) => {
-          maxOverlapCount = Math.max(maxOverlapCount, colEvent.totalColumns);
+          maxOverlapCount = Math.max(colEvent.totalColumns, maxOverlapCount);
         });
       } else {
         maxOverlapCount = 1;
@@ -116,7 +104,10 @@ const MasculineDayPage = () => {
 
   const arrangedEvents = calculateEventLayout(events);
 
-  // --- ドラッグ操作のイベントハンドラ ---
+  // ★重要: timeSlotsLabels の定義をこちらに統一します。これ以外の timeSlots 定義は削除します。
+  const timeSlotsLabels = Array.from({ length: 24 }, (_, i) => {
+    return i === 0 ? '' : `${String(i).padStart(2, "0")}:00`;
+  });
 
   const handleMouseDown = (e) => {
     if (e.target !== eventAreaRef.current) return;
@@ -181,7 +172,6 @@ const MasculineDayPage = () => {
     setDragCurrentPos(null);
   };
 
-  // --- ドラッグ選択範囲のスタイルを計算 ---
   const getSelectionBoxStyle = () => {
     if (!isDragging) return { display: "none" };
     const startY = Math.min(dragStartPos, dragCurrentPos);
@@ -191,11 +181,6 @@ const MasculineDayPage = () => {
       height: `${endY - startY}px`,
     };
   };
-
-  const timeSlots = Array.from(
-    { length: 24 },
-    (_, i) => `${String(i).padStart(2, "0")}:00`,
-  );
 
   const handleEventClick = (eventId) => navigate(`/event/${eventId}`);
   const handleAddEventClick = () => navigate(`/event/new?date=${date}`);
@@ -214,8 +199,9 @@ const MasculineDayPage = () => {
       </div>
       <div className="masculine-day-view-grid">
         <div className="masculine-time-axis">
-          {timeSlots.map((time, index) => (
-            <div key={index} className="masculine-time-slot-label">
+          {/* ★変更: timeSlotsLabels を使用し、0:00 非表示クラスを追加 ★ */}
+          {timeSlotsLabels.map((time, index) => (
+            <div key={index} className={`masculine-time-slot-label ${index === 0 ? 'masculine-hour-label-zero' : ''}`}>
               {time}
             </div>
           ))}
@@ -250,7 +236,8 @@ const MasculineDayPage = () => {
               </div>
             ))
           )}
-          {timeSlots.map((_, index) => (
+          {/* 1時間ごとの区切り線 */}
+          {timeSlotsLabels.map((_, index) => ( // ★変更: timeSlotsLabels を使用 ★
             <div
               key={`line-${index}`}
               className="masculine-hour-line"
