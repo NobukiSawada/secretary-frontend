@@ -1,0 +1,122 @@
+/* src/components/LoadingAnimationPage.css */
+
+.loading-animation-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #000;
+  /* 黒背景 */
+  color: #fff;
+  overflow: hidden;
+  /* 炎がはみ出さないように */
+  position: relative;
+}
+
+.fire-animation {
+  width: 150px;
+  /* 炎のベース幅 */
+  height: 150px;
+  /* 炎のベース高さ */
+  background: radial-gradient(
+    circle at 50% 100%,
+    #ffc107,
+    #ff5722,
+    #e62000,
+    transparent
+  );
+  /* 炎の色合い */
+  border-radius: 50%;
+  /* 円形 */
+  position: relative;
+  animation: ignite 1.5s ease-out forwards;
+  /* 燃え上がるアニメーション */
+  filter: blur(10px);
+  /* ぼかしで炎らしさを出す */
+  box-shadow:
+    0 0 50px rgba(255, 69, 0, 0.8),
+    0 0 100px rgba(255, 0, 0, 0.6);
+  /* 光彩エフェクト */
+}
+
+/* 炎のゆらめき */
+.fire-animation::before,
+.fire-animation::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  /* 親要素のグラデーションを継承 */
+  border-radius: inherit;
+  animation: flicker 0.8s infinite alternate ease-in-out;
+  transform-origin: bottom center;
+}
+
+.fire-animation::after {
+  animation-delay: 0.4s;
+  animation-duration: 0.9s;
+  transform: scale(0.8);
+}
+
+@keyframes ignite {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes flicker {
+  0% {
+    transform: scaleY(1) scaleX(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scaleY(0.9) scaleX(1.1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scaleY(1.1) scaleX(0.9);
+    opacity: 1;
+  }
+}
+
+.loading-text {
+  font-family: "Arial Black", sans-serif;
+  font-size: 2em;
+  margin-top: 50px;
+  color: #ff9900;
+  /* 炎の色に合わせた文字色 */
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+  animation: fadeInOut 2s infinite alternate;
+  /* フェードイン・アウトするテキスト */
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}

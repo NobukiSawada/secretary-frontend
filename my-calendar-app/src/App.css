@@ -1,8 +1,7 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   text-align: center;
+  width: 100%;
 }
 
 .logo {
@@ -11,9 +10,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -22,6 +23,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -39,4 +41,36 @@
 
 .read-the-docs {
   color: #888;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f4f4f4;
+  /* デフォルトの背景色 */
+  transition: background-color 0.5s ease-in-out;
+  /* 背景色切り替えをスムーズに */
+}
+
+code {
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+/* ★変更: .masculine-mode body ではなく、body.masculine-mode に変更 ★ */
+body.masculine-mode {
+  background-color: #333;
+  /* 漢モードの背景色 */
+  color: #eee;
+  /* 漢モードの文字色 */
+}
+
+/* Appコンポーネント内のラッパーは必要に応じてスタイルを調整 */
+.App {
+  min-height: 100vh;
+  /* アプリ全体の最小高さを確保 */
+  display: flex;
+  flex-direction: column;
 }
