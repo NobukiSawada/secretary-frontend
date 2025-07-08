@@ -1,5 +1,5 @@
 {
-  "name": "secretary",
+  "name": "my-calendar-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,26 +13,34 @@
     "lint-staged": "lint-staged"
   },
   "dependencies": {
-    "axios": "^1.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^7.6.3"
+    "react-router-dom": "^6.23.1",
+    "axios": "^1.x.x"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.x.x",
-    "@eslint/js": "^8.x.x",
-    "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.2.1",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.x.x",
-    "eslint-plugin-react": "^7.34.1",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.6",
+    "vite": "^5.2.0",
     "husky": "^9.0.11",
     "lint-staged": "^13.2.0",
     "prettier": "^3.2.5",
-    "vite": "^5.2.0"
+    "eslint": "^8.57.0",
+    "@eslint/compat": "^1.0.0",
+    "@eslint/js": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.0.0",
+    "eslint-plugin-react-hooks": "^4.0.0",
+    "eslint-plugin-react-refresh": "^0.4.6"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,css}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.js": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   }
 }
