@@ -16,7 +16,7 @@ import "./CalendarPage.css";
 const fetchEventsForMonth = async (year, month) => {
   try {
     const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/events/${year}/${month + 1}`
+      `${import.meta.env.VITE_API_URL}/events/${year}/${month + 1}`,
     );
     return response.data;
   } catch (error) {

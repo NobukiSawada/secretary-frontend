@@ -172,3 +172,14 @@
   font-size: 0.8em;
   color: #4a6a8c;
 }
+
+/* --- ドラッグ選択用のスタイルを追加 --- */
+.selection-box {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-color: rgba(40, 167, 69, 0.3); /* 半透明の緑 */
+  border: 1px dashed #28a745;
+  z-index: 5; /* 時間線より手前、イベントより奥 */
+  pointer-events: none; /* この要素自身がマウスイベントを妨げないように */
+}

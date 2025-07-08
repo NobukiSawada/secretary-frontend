@@ -190,6 +190,16 @@
 
 .masculine-event-time {
   font-size: 0.9em;
-  color: #ffcccb;
-  /* 薄い赤 */
+  color: #ffcccb; /* 薄い赤 */
+}
+
+/* --- ドラッグ選択用のスタイルを追加 --- */
+.masculine-selection-box {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 128, 0, 0.4); /* 半透明の濃い緑 */
+  border: 1px dashed #00aa00;
+  z-index: 5;
+  pointer-events: none;
 }
