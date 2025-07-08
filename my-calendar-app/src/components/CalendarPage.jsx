@@ -1,15 +1,46 @@
 // src/components/CalendarPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./CalendarPage.css";
 
-// CalendarPage コンポーネントは onToggleMode プロップを受け取る
+// APIから取得したイベントのダミーデータ。最終的には実際のAPI通信に置き換えます。
+//const dummyEvents = {
+//  "2025-07-15": [{ id: 1, title: "会議" }],
+//  "2025-07-22": [
+//    { id: 2, title: "誕生日会" },
+//    { id: 3, title: "歯医者" },
+//  ],
+//};
+
+const fetchEventsForMonth = async (year, month) => {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/events/${year}/${month + 1}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    return {}; // エラー発生時は空のオブジェクトを返す
+  }
+};
+
 const CalendarPage = ({ onToggleMode }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [events, setEvents] = useState({}); // イベントを保持するためのstate
+  const navigate = useNavigate();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-  const navigate = useNavigate();
+
+  // コンポーネントのマウント時、または年月が変更された際にイベントを取得
+  useEffect(() => {
+    const getEvents = async () => {
+      const fetchedEvents = await fetchEventsForMonth(year, month);
+      setEvents(fetchedEvents);
+    };
+    getEvents();
+  }, [year, month]);
 
   const monthNames = [
     "1月",
@@ -49,6 +80,7 @@ const CalendarPage = ({ onToggleMode }) => {
     const prevMonthLastDay = new Date(year, month, 0).getDate();
     const prevMonthYear = month === 0 ? year - 1 : year;
     const prevMonth = month === 0 ? 11 : month - 1;
+
     for (let i = firstDayOfMonth; i > 0; i--) {
       const day = prevMonthLastDay - i + 1;
       days.push({
@@ -57,10 +89,14 @@ const CalendarPage = ({ onToggleMode }) => {
         year: prevMonthYear,
         isCurrentMonth: false,
         isToday: false,
+        events: [],
       });
     }
+
     const today = new Date();
     for (let i = 1; i <= lastDayOfMonth; i++) {
+      const dateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
+      const dayEvents = events[dateString] || [];
       const isToday =
         year === today.getFullYear() &&
         month === today.getMonth() &&
@@ -71,8 +107,10 @@ const CalendarPage = ({ onToggleMode }) => {
         year: year,
         isCurrentMonth: true,
         isToday: isToday,
+        events: dayEvents,
       });
     }
+
     const totalCells = days.length > 35 ? 42 : 35;
     const nextMonthYear = month === 11 ? year + 1 : year;
     const nextMonth = month === 11 ? 0 : month + 1;
@@ -83,6 +121,7 @@ const CalendarPage = ({ onToggleMode }) => {
         year: nextMonthYear,
         isCurrentMonth: false,
         isToday: false,
+        events: [],
       });
     }
     return days;
@@ -99,7 +138,6 @@ const CalendarPage = ({ onToggleMode }) => {
           {year}年 {monthNames[month]}
         </h3>
         <button onClick={goToNextMonth}>次の月 &gt;</button>
-        {/* ★変更: onToggleMode を呼び出す ★ */}
         <button onClick={onToggleMode}>漢モードへ</button>
       </div>
       <div className="calendar-grid">
@@ -116,7 +154,14 @@ const CalendarPage = ({ onToggleMode }) => {
             onClick={() => handleDayClick(day)}
             className={`day-cell ${day.isCurrentMonth ? "current-month" : "other-month"} ${day.isToday ? "today" : ""}`}
           >
-            {day.date}
+            <div className="day-number">{day.date}</div>
+            <div className="events">
+              {day.events.map((event) => (
+                <div key={event.id} className="event">
+                  {event.title}
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>
