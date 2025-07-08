@@ -160,14 +160,14 @@ const MasculineDayPage = () => {
       const startTimeStr = formatTime(startMin);
       const endTimeStr = formatTime(endMin);
 
-      const getISOString = (timeStr) => {
-        const [hours, minutes] = timeStr.split(":");
-        const dateTime = new Date(`${date}T${hours}:${minutes}:00`);
-        return dateTime.toISOString();
+      const formatToLocalTime = (timeStr) => {
+        // `timeStr` is formatted as HH:mm.
+        // This creates a local time string without a timezone offset.
+        return `${date}T${timeStr}:00`;
       };
 
-      const freeTimeStart = getISOString(startTimeStr);
-      const freeTimeEnd = getISOString(endTimeStr);
+      const freeTimeStart = formatToLocalTime(startTimeStr);
+      const freeTimeEnd = formatToLocalTime(endTimeStr);
 
       const jsonData = [
         { free_time_start: freeTimeStart },
