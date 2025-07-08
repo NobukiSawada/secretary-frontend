@@ -14,7 +14,15 @@ const MasculineDayPage = () => {
   const [dragCurrentPos, setDragCurrentPos] = useState(null);
 
   const allDummyEvents = [
-    { id: "1", title: "チームミーティング", start: "10:00", end: "11:30", date: "2025-06-24", description: "週次報告と進捗確認", location: "オンライン" },
+    {
+      id: "1",
+      title: "チームミーティング",
+      start: "10:00",
+      end: "11:30",
+      date: "2025-06-24",
+      description: "週次報告と進捗確認",
+      location: "オンライン",
+    },
     // ... 他のイベントデータ
   ];
 
@@ -106,7 +114,7 @@ const MasculineDayPage = () => {
 
   // ★重要: timeSlotsLabels の定義をこちらに統一します。これ以外の timeSlots 定義は削除します。
   const timeSlotsLabels = Array.from({ length: 24 }, (_, i) => {
-    return i === 0 ? '' : `${String(i).padStart(2, "0")}:00`;
+    return i === 0 ? "" : `${String(i).padStart(2, "0")}:00`;
   });
 
   const handleMouseDown = (e) => {
@@ -201,7 +209,10 @@ const MasculineDayPage = () => {
         <div className="masculine-time-axis">
           {/* ★変更: timeSlotsLabels を使用し、0:00 非表示クラスを追加 ★ */}
           {timeSlotsLabels.map((time, index) => (
-            <div key={index} className={`masculine-time-slot-label ${index === 0 ? 'masculine-hour-label-zero' : ''}`}>
+            <div
+              key={index}
+              className={`masculine-time-slot-label ${index === 0 ? "masculine-hour-label-zero" : ""}`}
+            >
               {time}
             </div>
           ))}
@@ -237,13 +248,18 @@ const MasculineDayPage = () => {
             ))
           )}
           {/* 1時間ごとの区切り線 */}
-          {timeSlotsLabels.map((_, index) => ( // ★変更: timeSlotsLabels を使用 ★
-            <div
-              key={`line-${index}`}
-              className="masculine-hour-line"
-              style={{ top: `${index * PX_PER_HOUR}px` }}
-            ></div>
-          ))}
+          {timeSlotsLabels.map(
+            (
+              _,
+              index, // ★変更: timeSlotsLabels を使用 ★
+            ) => (
+              <div
+                key={`line-${index}`}
+                className="masculine-hour-line"
+                style={{ top: `${index * PX_PER_HOUR}px` }}
+              ></div>
+            ),
+          )}
         </div>
       </div>
     </div>

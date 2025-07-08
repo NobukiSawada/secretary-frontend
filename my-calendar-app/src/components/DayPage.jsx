@@ -113,7 +113,7 @@ const DayPage = () => {
 
   // ★重要: timeSlotsLabels の定義をこちらに統一します。これ以外の timeSlots 定義は削除します。
   const timeSlotsLabels = Array.from({ length: 24 }, (_, i) => {
-    return i === 0 ? '' : `${String(i).padStart(2, "0")}:00`;
+    return i === 0 ? "" : `${String(i).padStart(2, "0")}:00`;
   });
 
   const handleMouseDown = (e) => {
@@ -204,7 +204,10 @@ const DayPage = () => {
         <div className="time-axis">
           {/* ★変更: timeSlotsLabels を使用し、0:00 非表示クラスを追加 ★ */}
           {timeSlotsLabels.map((time, index) => (
-            <div key={index} className={`time-slot-label ${index === 0 ? 'hour-label-zero' : ''}`}>
+            <div
+              key={index}
+              className={`time-slot-label ${index === 0 ? "hour-label-zero" : ""}`}
+            >
               {time}
             </div>
           ))}
@@ -230,18 +233,26 @@ const DayPage = () => {
                 onClick={() => handleEventClick(event.id)}
               >
                 <div className="event-title">{event.title}</div>
-                <div className="event-time">{event.start} - {event.end}</div> {/* ★変更: event.time を追加 ★ */}
+                <div className="event-time">
+                  {event.start} - {event.end}
+                </div>{" "}
+                {/* ★変更: event.time を追加 ★ */}
               </div>
             ))
           )}
           {/* 1時間ごとの区切り線 */}
-          {timeSlotsLabels.map((_, index) => ( // ★変更: timeSlotsLabels を使用 ★
-            <div
-              key={`line-${index}`}
-              className="hour-line"
-              style={{ top: `${index * PX_PER_HOUR}px` }}
-            ></div>
-          ))}
+          {timeSlotsLabels.map(
+            (
+              _,
+              index, // ★変更: timeSlotsLabels を使用 ★
+            ) => (
+              <div
+                key={`line-${index}`}
+                className="hour-line"
+                style={{ top: `${index * PX_PER_HOUR}px` }}
+              ></div>
+            ),
+          )}
         </div>
       </div>
     </div>
