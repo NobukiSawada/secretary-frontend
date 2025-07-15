@@ -126,7 +126,12 @@ const EventDetailPage = () => {
       await apiClient.delete(`/events/${event.id}`); // DELETE /events/{event_id}
       console.log("イベントを削除:", event.id);
       alert("イベントを削除しました！");
-      navigate(`/day/${event.date}`); // 削除後、日表示ページに戻る
+
+      // ★変更: navigate に { replace: true } を追加 ★
+      // これにより、現在のURLを置き換え、履歴スタックに新しいエントリを追加しません。
+      // 削除後のページ遷移で履歴をクリーンに保つ効果があります。
+      navigate(`/day/${event.date}`, { replace: true });
+
     } catch (error) {
       console.error("イベントの削除に失敗しました:", error.response?.data || error.message);
       alert(`削除に失敗しました: ${error.response?.data?.detail || error.message}`);
