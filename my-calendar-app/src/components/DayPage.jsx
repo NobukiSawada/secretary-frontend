@@ -176,17 +176,20 @@ const DayPage = () => {
       const freeTimeEndISO = `${date}T${endTimeStr}:00Z`;
 
       const plannerRequestData = {
-        prev_event_location: "出発地",
-        next_event_location: "目的地",
-        prev_event_end_time: freeTimeStartISO,
-        next_event_start_time: freeTimeEndISO,
-        user_preferences: "短時間で楽しめること",
+        // prev_event_location: "出発地",
+        // next_event_location: "目的地",
+        // prev_event_end_time: freeTimeStartISO,
+        // next_event_start_time: freeTimeEndISO,
+        // user_preferences: "短時間で楽しめること",
+        free_time_start: freeTimeStartISO,
+        free_time_end: freeTimeEndISO,
+        user_preferences: "歩くのは面倒臭い",
       };
 
       console.log("送信するプランナーリクエスト:", JSON.stringify(plannerRequestData, null, 2));
 
       try {
-        const response = await apiClient.post('/planner/generate-plans', plannerRequestData);
+        const response = await apiClient.post('/planner/generate-plans-from-free-time', plannerRequestData);
         console.log("提案結果:", response.data);
         if (response.data.plans && response.data.plans.length > 0) {
           setSuggestedPlans(response.data.plans);
