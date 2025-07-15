@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./DayPage.css";
+
 import apiClient from "../api/apiClient";
 import SuggestionModal from "./SuggestionModal";
+
 
 const DayPage = () => {
   const { date } = useParams();
@@ -32,9 +34,11 @@ const DayPage = () => {
         setEvents(response.data.map(event => ({
           ...event,
           id: String(event.id),
+
           start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
           end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
           is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false // AI生成フラグを付与（タイトルで識別）
+
         })));
       } catch (error) {
         console.error("イベントの取得に失敗しました:", error.response?.data || error.message);
@@ -208,12 +212,14 @@ const DayPage = () => {
     try {
       for (const event of planEvents) {
         const eventData = {
+
           title: `AI提案: ${event.title}`, // タイトルにプレフィックスを追加して識別を容易にする
           start_time: event.start_time,
           end_time: event.end_time,
           location: event.location || null,
           description: event.description || null,
           is_ai_generated: true, // AI生成フラグを付与（バックエンドのスキーマにフィールドがない場合、DBには保存されない）
+
         };
         await apiClient.post('/events/', eventData); // イベント追加APIを呼び出し
       }
@@ -230,6 +236,7 @@ const DayPage = () => {
         start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
         end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
         is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false // APIレスポンスから再識別
+
       })));
 
     } catch (error) {
