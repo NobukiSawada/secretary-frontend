@@ -175,41 +175,6 @@ const DayPage = () => {
       const freeTimeStartISO = `${date}T${startTimeStr}:00Z`;
       const freeTimeEndISO = `${date}T${endTimeStr}:00Z`;
 
-<<<<<<< HEAD
-      const suggestionRequestData = {
-        free_time_start: freeTimeStart,
-        free_time_end: freeTimeEnd,
-        user_preferences: "歩きたい",
-      };
-
-      console.log("送信する提案リクエスト:", JSON.stringify(suggestionRequestData, null, 2));
-      // 囲った部分の前後の予定情報を取得して、提案を作成する部分
-      try {
-    const response = await apiClient.post('/planner/generate-plans-from-free-time', suggestionRequestData);
-    console.log("プランナーからの結果:", response.data);
-
-    // レスポンスに 'plans' があり、その中に要素が存在するかチェック
-    if (response.data.plans && response.data.plans.length > 0) {
-        
-        // 最初のプランパターンを取得
-        const planPattern = response.data.plans[0];
-        
-        // プランの中からメインのアクティビティを抽出（通常は2番目のイベント）
-        // イベントが2つ以上あることを確認
-        if (planPattern.events && planPattern.events.length > 1) {
-            const mainActivity = planPattern.events[1]; // 0:移動, 1:アクティビティ, 2:移動
-
-            // プランのテーマと、メインアクティビティの詳細をalertで表示
-            alert(
-                `AIからの提案プラン: \n` +
-                `--------------------\n` +
-                `プランテーマ: ${planPattern.pattern_description}\n` +
-                `--------------------\n` +
-                `アクティビティ: ${mainActivity.title}\n` +
-                `場所: ${mainActivity.location || '不明'}\n` +
-                `内容: ${mainActivity.description || '特になし'}`
-            );
-=======
       const plannerRequestData = {
         // prev_event_location: "出発地",
         // next_event_location: "目的地",
@@ -229,26 +194,14 @@ const DayPage = () => {
         if (response.data.plans && response.data.plans.length > 0) {
           setSuggestedPlans(response.data.plans);
           setIsModalOpen(true);
->>>>>>> main
         } else {
              alert("提案プランに有効なアクティビティが見つかりませんでした。");
         }
-<<<<<<< HEAD
-
-    } else {
-        alert("提案プランが見つかりませんでした。");
-    }
-} catch (error) {
-    console.error("プランの取得に失敗しました:", error.response?.data || error.message);
-    alert(`プランの取得に失敗しました: ${error.response?.data?.detail || error.message}`);
-}
-=======
       } catch (error) {
         console.error("提案の取得に失敗しました:", error.response?.data || error.message);
         const errorMessage = error.response?.data?.detail || error.message;
         alert(`提案の取得に失敗しました: ${JSON.stringify(errorMessage)}`);
       }
->>>>>>> main
     }
 
     setIsDragging(false);
