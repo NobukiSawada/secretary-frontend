@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./DayPage.css";
 import apiClient from "../api/apiClient"; // APIクライアントをインポート
+import SuggestionModal from "./SuggestionModal"; // SuggestionModal をインポート
 
 const DayPage = () => {
   const { date } = useParams(); // 'YYYY-MM-DD' 形式
@@ -14,22 +15,28 @@ const DayPage = () => {
   const [dragStartPos, setDragStartPos] = useState(null);
   const [dragCurrentPos, setDragCurrentPos] = useState(null);
 
-  // --- イベントデータの取得 ---
-  useEffect(() => {
-    const fetchEventsForDay = async () => { // 関数名を明確にする
-      try {
-        const startOfDay = `${date}T00:00:00Z`; // UTCとして送信
-        const endOfDay = `${date}T23:59:59Z`;   // UTCとして送信
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [suggestedPlans, setSuggestedPlans] = useState([]);
 
-        const response = await apiClient.get('/events/', { // GET /events/
+  // イベントデータの取得
+  useEffect(() => {
+    const fetchEventsForDay = async () => {
+      try {
+        const startOfDay = `${date}T00:00:00Z`;
+        const endOfDay = `${date}T23:59:59Z`;
+
+        const response = await apiClient.get('/events/', {
           params: { start: startOfDay, end: endOfDay }
         });
 
         setEvents(response.data.map(event => ({
           ...event,
-          id: String(event.id), // IDを文字列に変換
+          id: String(event.id),
+          // APIから返される ISO 8601 文字列を HH:mm 形式に変換
           start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
           end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          // AI生成イベントであることを識別するフラグを付与（ページリロードで失われるため注意）
+          is_ai_generated: event.is_ai_generated || false // バックエンドにis_ai_generatedフィールドがあればそれを利用
         })));
       } catch (error) {
         console.error("イベントの取得に失敗しました:", error.response?.data || error.message);
@@ -38,17 +45,15 @@ const DayPage = () => {
       }
     };
 
-    fetchEventsForDay(); // 修正後の関数を呼び出す
-  }, [date]); // date が変更されるたびにイベントを再取得
+    fetchEventsForDay();
+  }, [date]);
 
-  // --- 時間とピクセルの変換定数 ---
   const PX_PER_HOUR = 60;
   const timeToMinutes = (time) => {
     const [hour, minute] = time.split(":").map(Number);
     return hour * 60 + minute;
   };
 
-  // --- イベントレイアウト計算ロジック ---
   const calculateEventLayout = (allEvents) => {
     const sortedEvents = [...allEvents].sort((a, b) => {
       return timeToMinutes(a.start) - timeToMinutes(b.start);
@@ -120,12 +125,10 @@ const DayPage = () => {
 
   const arrangedEvents = calculateEventLayout(events);
 
-  // --- timeSlotsLabels の定義 ---
   const timeSlotsLabels = Array.from({ length: 24 }, (_, i) => {
     return i === 0 ? '' : `${String(i).padStart(2, "0")}:00`;
   });
 
-  // --- ドラッグ操作のイベントハンドラ ---
   const handleMouseDown = (e) => {
     if (e.target !== eventAreaRef.current) return;
     setIsDragging(true);
@@ -169,9 +172,10 @@ const DayPage = () => {
       const startTimeStr = formatTime(startMin);
       const endTimeStr = formatTime(endMin);
 
-      const freeTimeStart = `${date}T${startTimeStr}:00Z`; // UTCとして送信
-      const freeTimeEnd = `${date}T${endTimeStr}:00Z`;     // UTCとして送信
+      const freeTimeStartISO = `${date}T${startTimeStr}:00Z`;
+      const freeTimeEndISO = `${date}T${endTimeStr}:00Z`;
 
+<<<<<<< HEAD
       const suggestionRequestData = {
         free_time_start: freeTimeStart,
         free_time_end: freeTimeEnd,
@@ -205,9 +209,31 @@ const DayPage = () => {
                 `場所: ${mainActivity.location || '不明'}\n` +
                 `内容: ${mainActivity.description || '特になし'}`
             );
+=======
+      const plannerRequestData = {
+        // prev_event_location: "出発地",
+        // next_event_location: "目的地",
+        // prev_event_end_time: freeTimeStartISO,
+        // next_event_start_time: freeTimeEndISO,
+        // user_preferences: "短時間で楽しめること",
+        free_time_start: freeTimeStartISO,
+        free_time_end: freeTimeEndISO,
+        user_preferences: "歩くのは面倒臭い",
+      };
+
+      console.log("送信するプランナーリクエスト:", JSON.stringify(plannerRequestData, null, 2));
+
+      try {
+        const response = await apiClient.post('/planner/generate-plans-from-free-time', plannerRequestData);
+        console.log("提案結果:", response.data);
+        if (response.data.plans && response.data.plans.length > 0) {
+          setSuggestedPlans(response.data.plans);
+          setIsModalOpen(true);
+>>>>>>> main
         } else {
              alert("提案プランに有効なアクティビティが見つかりませんでした。");
         }
+<<<<<<< HEAD
 
     } else {
         alert("提案プランが見つかりませんでした。");
@@ -216,6 +242,13 @@ const DayPage = () => {
     console.error("プランの取得に失敗しました:", error.response?.data || error.message);
     alert(`プランの取得に失敗しました: ${error.response?.data?.detail || error.message}`);
 }
+=======
+      } catch (error) {
+        console.error("提案の取得に失敗しました:", error.response?.data || error.message);
+        const errorMessage = error.response?.data?.detail || error.message;
+        alert(`提案の取得に失敗しました: ${JSON.stringify(errorMessage)}`);
+      }
+>>>>>>> main
     }
 
     setIsDragging(false);
@@ -223,7 +256,40 @@ const DayPage = () => {
     setDragCurrentPos(null);
   };
 
-  // --- ドラッグ選択範囲のスタイルを計算 ---
+  const handleSelectPlan = async (planEvents) => {
+    try {
+      for (const event of planEvents) {
+        const eventData = {
+          title: event.title,
+          start_time: event.start_time, // ISO 8601 文字列としてそのまま送信
+          end_time: event.end_time,     // ISO 8601 文字列としてそのまま送信
+          location: event.location || null,
+          description: event.description || null,
+          is_ai_generated: true, // AI生成フラグを付与
+        };
+        await apiClient.post('/events/', eventData); // イベント追加APIを呼び出し
+      }
+      alert("選択されたプランのイベントを追加しました！");
+      setIsModalOpen(false);
+
+      // イベント追加後、DayPageのイベントリストを再読み込み
+      const startOfDay = `${date}T00:00:00Z`;
+      const endOfDay = `${date}T23:59:59Z`;
+      const response = await apiClient.get('/events/', { params: { start: startOfDay, end: endOfDay } });
+      setEvents(response.data.map(event => ({
+        ...event,
+        id: String(event.id),
+        start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        is_ai_generated: event.is_ai_generated || false // APIレスポンスにフラグがない場合
+      })));
+
+    } catch (error) {
+      console.error("プランの追加に失敗しました:", error.response?.data || error.message);
+      alert(`プランの追加に失敗しました: ${error.response?.data?.detail || error.message}`);
+    }
+  };
+
   const getSelectionBoxStyle = () => {
     if (!isDragging) return { display: "none" };
     const startY = Math.min(dragStartPos, dragCurrentPos);
@@ -271,7 +337,7 @@ const DayPage = () => {
             arrangedEvents.map((event) => (
               <div
                 key={event.id}
-                className="event-block"
+                className={`event-block ${event.is_ai_generated ? 'ai-event-block' : ''}`}
                 style={event.style}
                 onClick={() => handleEventClick(event.id)}
               >
@@ -291,6 +357,13 @@ const DayPage = () => {
           ))}
         </div>
       </div>
+
+      <SuggestionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        suggestions={suggestedPlans}
+        onSelectPlan={handleSelectPlan}
+      />
     </div>
   );
 };
