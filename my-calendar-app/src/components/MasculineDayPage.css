@@ -2,7 +2,8 @@
 
 @font-face {
   font-family: "TamanegiKaishoGeki";
-  src: url("../assets/玉ねぎ楷書「激」無料版v7/玉ねぎ楷書激無料版v7改.ttf") format("truetype");
+  src: url("../assets/玉ねぎ楷書「激」無料版v7/玉ねぎ楷書激無料版v7改.ttf")
+    format("truetype");
 }
 
 .masculine-day-page-container {

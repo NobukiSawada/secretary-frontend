@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./MasculineDayPage.css";
 import apiClient from "../api/apiClient";
 import SuggestionModal from "./SuggestionModal";
+import LoadingModal from "./LoadingModal"; // LoadingModal をインポート
 
 const MasculineDayPage = () => {
   const { date } = useParams();
@@ -17,6 +18,7 @@ const MasculineDayPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [suggestedPlans, setSuggestedPlans] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); // ローディング状態
 
   // イベントデータの取得
   useEffect(() => {
@@ -25,22 +27,38 @@ const MasculineDayPage = () => {
         const startOfDay = `${date}T00:00:00Z`;
         const endOfDay = `${date}T23:59:59Z`;
 
-        const response = await apiClient.get('/events/', {
-          params: { start: startOfDay, end: endOfDay }
+        const response = await apiClient.get("/events/", {
+          params: { start: startOfDay, end: endOfDay },
         });
 
-        setEvents(response.data.map(event => ({
-          ...event,
-          id: String(event.id),
-          start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          // AI生成イベントを識別するフラグを付与（ページリロードで失われるため注意）
-          // APIレスポンスに is_ai_generated フィールドがないため、タイトルで一時的に識別
-          is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false
-        })));
+        setEvents(
+          response.data.map((event) => ({
+            ...event,
+            id: String(event.id),
+            start: new Date(event.start_time).toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }),
+            end: new Date(event.end_time).toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }),
+            // AI生成イベントを識別するフラグを付与（ページリロードで失われるため注意）
+            // APIレスポンスに is_ai_generated フィールドがないため、タイトルで一時的に識別
+            is_ai_generated:
+              event.title && event.title.startsWith("AI提案:") ? true : false,
+          })),
+        );
       } catch (error) {
-        console.error("イベントの取得に失敗しました:", error.response?.data || error.message);
-        alert(`イベントの取得に失敗しました: ${error.response?.data?.detail || error.message}`);
+        console.error(
+          "イベントの取得に失敗しました:",
+          error.response?.data || error.message,
+        );
+        alert(
+          `イベントの取得に失敗しました: ${error.response?.data?.detail || error.message}`,
+        );
         setEvents([]);
       }
     };
@@ -126,7 +144,7 @@ const MasculineDayPage = () => {
   const arrangedEvents = calculateEventLayout(events);
 
   const timeSlotsLabels = Array.from({ length: 24 }, (_, i) => {
-    return i === 0 ? '' : `${String(i).padStart(2, "0")}:00`;
+    return i === 0 ? "" : `${String(i).padStart(2, "0")}:00`;
   });
 
   const handleMouseDown = (e) => {
@@ -163,7 +181,8 @@ const MasculineDayPage = () => {
     if (isOverlapping) {
       console.log("選択範囲に既存の予定が含まれています。");
       alert("選択範囲に既存の予定が含まれています。");
-    } else if (endMin - startMin > 1) { // 1分以上の選択のみ有効
+    } else if (endMin - startMin > 1) {
+      // 1分以上の選択のみ有効
       const formatTime = (totalMinutes) => {
         const hours = Math.floor(totalMinutes / 60);
         const minutes = Math.round(totalMinutes % 60);
@@ -183,10 +202,16 @@ const MasculineDayPage = () => {
         user_preferences: "短時間で楽しめること",
       };
 
-      console.log("送信するプランナーリクエスト:", JSON.stringify(plannerRequestData, null, 2));
-
+      console.log(
+        "送信するプランナーリクエスト:",
+        JSON.stringify(plannerRequestData, null, 2),
+      );
+      setIsLoading(true); // ローディング開始
       try {
-        const response = await apiClient.post('/planner/generate-plans', plannerRequestData);
+        const response = await apiClient.post(
+          "/planner/generate-plans",
+          plannerRequestData,
+        );
         console.log("提案結果:", response.data);
         if (response.data.plans && response.data.plans.length > 0) {
           setSuggestedPlans(response.data.plans);
@@ -195,9 +220,14 @@ const MasculineDayPage = () => {
           alert("提案が見つかりませんでした。");
         }
       } catch (error) {
-        console.error("提案の取得に失敗しました:", error.response?.data || error.message);
+        console.error(
+          "提案の取得に失敗しました:",
+          error.response?.data || error.message,
+        );
         const errorMessage = error.response?.data?.detail || error.message;
         alert(`提案の取得に失敗しました: ${JSON.stringify(errorMessage)}`);
+      } finally {
+        setIsLoading(false); // ローディング終了
       }
     }
 
@@ -212,12 +242,12 @@ const MasculineDayPage = () => {
         const eventData = {
           title: `AI提案: ${event.title}`, // タイトルにプレフィックスを追加して識別を容易にする
           start_time: event.start_time, // ISO 8601 文字列としてそのまま送信
-          end_time: event.end_time,     // ISO 8601 文字列としてそのまま送信
+          end_time: event.end_time, // ISO 8601 文字列としてそのまま送信
           location: event.location || null,
           description: event.description || null,
           is_ai_generated: true, // AI生成フラグを付与（バックエンドのスキーマにフィールドがない場合、DBには保存されない）
         };
-        await apiClient.post('/events/', eventData); // イベント追加APIを呼び出し
+        await apiClient.post("/events/", eventData); // イベント追加APIを呼び出し
       }
       alert("選択されたプランのイベントを追加しました！");
       setIsModalOpen(false);
@@ -225,18 +255,35 @@ const MasculineDayPage = () => {
       // イベント追加後、DayPageのイベントリストを再読み込み
       const startOfDay = `${date}T00:00:00Z`;
       const endOfDay = `${date}T23:59:59Z`;
-      const response = await apiClient.get('/events/', { params: { start: startOfDay, end: endOfDay } });
-      setEvents(response.data.map(event => ({
-        ...event,
-        id: String(event.id),
-        start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-        end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-        is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false // APIレスポンスから再識別
-      })));
-
+      const response = await apiClient.get("/events/", {
+        params: { start: startOfDay, end: endOfDay },
+      });
+      setEvents(
+        response.data.map((event) => ({
+          ...event,
+          id: String(event.id),
+          start: new Date(event.start_time).toLocaleTimeString("ja-JP", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }),
+          end: new Date(event.end_time).toLocaleTimeString("ja-JP", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }),
+          is_ai_generated:
+            event.title && event.title.startsWith("AI提案:") ? true : false, // APIレスポンスから再識別
+        })),
+      );
     } catch (error) {
-      console.error("プランの追加に失敗しました:", error.response?.data || error.message);
-      alert(`プランの追加に失敗しました: ${error.response?.data?.detail || error.message}`);
+      console.error(
+        "プランの追加に失敗しました:",
+        error.response?.data || error.message,
+      );
+      alert(
+        `プランの追加に失敗しました: ${error.response?.data?.detail || error.message}`,
+      );
     }
   };
 
@@ -253,19 +300,44 @@ const MasculineDayPage = () => {
   const handleEventClick = (eventId) => navigate(`/event/${eventId}`);
   const handleAddEventClick = () => navigate(`/event/new?date=${date}`);
 
+  const handlePrevDay = () => {
+    const currentDate = new Date(date);
+    currentDate.setDate(currentDate.getDate() - 1);
+    const prevDateString = currentDate.toISOString().split("T")[0];
+    navigate(`/day/${prevDateString}`);
+  };
+
+  const handleNextDay = () => {
+    const currentDate = new Date(date);
+    currentDate.setDate(currentDate.getDate() + 1);
+    const nextDateString = currentDate.toISOString().split("T")[0];
+    navigate(`/day/${nextDateString}`);
+  };
+
   return (
     <div className="masculine-day-page-container">
+      <LoadingModal isOpen={isLoading} />
       <div className="masculine-day-page-header">
-        <button onClick={() => navigate(-1)}>&lt; カレンダーに戻る</button>
+        <button onClick={() => navigate("/masculine-calendar")}>
+          &lt; カレンダーに戻る
+        </button>
+        <button onClick={handlePrevDay}>&lt; 前の日へ</button>
         <h2>{date} の予定</h2>
-        <button onClick={handleAddEventClick} className="masculine-add-event-button">
+        <button onClick={handleNextDay}>次の日へ &gt;</button>
+        <button
+          onClick={handleAddEventClick}
+          className="masculine-add-event-button"
+        >
           予定を追加
         </button>
       </div>
       <div className="masculine-day-view-grid">
         <div className="masculine-time-axis">
           {timeSlotsLabels.map((time, index) => (
-            <div key={index} className={`masculine-time-slot-label ${index === 0 ? 'masculine-hour-label-zero' : ''}`}>
+            <div
+              key={index}
+              className={`masculine-time-slot-label ${index === 0 ? "masculine-hour-label-zero" : ""}`}
+            >
               {time}
             </div>
           ))}
@@ -278,7 +350,10 @@ const MasculineDayPage = () => {
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
         >
-          <div className="masculine-selection-box" style={getSelectionBoxStyle()}></div>
+          <div
+            className="masculine-selection-box"
+            style={getSelectionBoxStyle()}
+          ></div>
 
           {arrangedEvents.length === 0 ? (
             <p className="no-events">この日にはまだ予定がありません。</p>
@@ -286,7 +361,7 @@ const MasculineDayPage = () => {
             arrangedEvents.map((event) => (
               <div
                 key={event.id}
-                className={`masculine-event-block ${event.is_ai_generated ? 'ai-event-block' : ''}`}
+                className={`masculine-event-block ${event.is_ai_generated ? "ai-event-block" : ""}`}
                 style={event.style}
                 onClick={() => handleEventClick(event.id)}
               >

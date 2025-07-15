@@ -27,11 +27,21 @@ const EventDetailPage = () => {
       setIsEditing(isNew); // 新規イベントの場合は最初から編集モード
 
       if (isNew) {
-        const prefilledDate = searchParams.get('date') || '';
+        const prefilledDate = searchParams.get("date") || "";
         setEvent({
-          id: "temp-" + Date.now(), title: "", start: "", end: "", date: prefilledDate, description: "", location: "",
+          id: "temp-" + Date.now(),
+          title: "",
+          start: "",
+          end: "",
+          date: prefilledDate,
+          description: "",
+          location: "",
         });
-        setEditedTitle(""); setEditedStart(""); setEditedEnd(""); setEditedDescription(""); setEditedLocation("");
+        setEditedTitle("");
+        setEditedStart("");
+        setEditedEnd("");
+        setEditedDescription("");
+        setEditedLocation("");
       } else {
         // 既存イベントの場合、IDで検索し、バックエンドから取得
         try {
@@ -41,18 +51,42 @@ const EventDetailPage = () => {
             ...fetchedEvent,
             id: String(fetchedEvent.id), // IDを文字列に変換
             // FastAPIから返される start_time, end_time (ISO文字列) を表示用に変換
-            start: new Date(fetchedEvent.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-            end: new Date(fetchedEvent.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-            date: new Date(fetchedEvent.start_time).toISOString().split('T')[0], // YYYY-MM-DD形式
+            start: new Date(fetchedEvent.start_time).toLocaleTimeString(
+              "ja-JP",
+              { hour: "2-digit", minute: "2-digit", hour12: false },
+            ),
+            end: new Date(fetchedEvent.end_time).toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }),
+            date: new Date(fetchedEvent.start_time).toISOString().split("T")[0], // YYYY-MM-DD形式
           });
           setEditedTitle(fetchedEvent.title);
-          setEditedStart(new Date(fetchedEvent.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }));
-          setEditedEnd(new Date(fetchedEvent.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }));
+          setEditedStart(
+            new Date(fetchedEvent.start_time).toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }),
+          );
+          setEditedEnd(
+            new Date(fetchedEvent.end_time).toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }),
+          );
           setEditedDescription(fetchedEvent.description || "");
           setEditedLocation(fetchedEvent.location || "");
         } catch (error) {
-          console.error("イベントの読み込みに失敗しました:", error.response?.data || error.message);
-          alert(`イベントの読み込みに失敗しました: ${error.response?.data?.detail || error.message}`);
+          console.error(
+            "イベントの読み込みに失敗しました:",
+            error.response?.data || error.message,
+          );
+          alert(
+            `イベントの読み込みに失敗しました: ${error.response?.data?.detail || error.message}`,
+          );
           setEvent(null); // イベントが見つからない場合やエラー時
         }
       }
@@ -70,8 +104,12 @@ const EventDetailPage = () => {
       return;
     }
 
-    const startMin = parseInt(editedStart.split(":")[0]) * 60 + parseInt(editedStart.split(":")[1]);
-    const endMin = parseInt(editedEnd.split(":")[0]) * 60 + parseInt(editedEnd.split(":")[1]);
+    const startMin =
+      parseInt(editedStart.split(":")[0]) * 60 +
+      parseInt(editedStart.split(":")[1]);
+    const endMin =
+      parseInt(editedEnd.split(":")[0]) * 60 +
+      parseInt(editedEnd.split(":")[1]);
 
     if (startMin >= endMin) {
       alert("終了時刻は開始時刻より後に設定してください。");
@@ -79,9 +117,9 @@ const EventDetailPage = () => {
     }
 
     // 日付と時刻を結合して ISO 8601 形式の文字列を生成
-    const eventDate = isNewEvent ? searchParams.get('date') : event.date; // 新規作成時は URL から日付を取得
+    const eventDate = isNewEvent ? searchParams.get("date") : event.date; // 新規作成時は URL から日付を取得
     const startDateTime = `${eventDate}T${editedStart}:00Z`; // UTCとして送信
-    const endDateTime = `${eventDate}T${editedEnd}:00Z`;     // UTCとして送信
+    const endDateTime = `${eventDate}T${editedEnd}:00Z`; // UTCとして送信
 
     const eventData = {
       title: editedTitle,
@@ -93,7 +131,7 @@ const EventDetailPage = () => {
 
     try {
       if (isNewEvent) {
-        const response = await apiClient.post('/events/', eventData); // POST /events/
+        const response = await apiClient.post("/events/", eventData); // POST /events/
         console.log("新規イベントを追加:", response.data);
         alert("新しいイベントを追加しました！");
         navigate(`/day/${eventDate}`); // DayPageに戻る
@@ -104,16 +142,28 @@ const EventDetailPage = () => {
         setEvent({
           ...event, // 更新されたデータで event state を更新
           title: response.data.title,
-          start: new Date(response.data.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          end: new Date(response.data.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          start: new Date(response.data.start_time).toLocaleTimeString(
+            "ja-JP",
+            { hour: "2-digit", minute: "2-digit", hour12: false },
+          ),
+          end: new Date(response.data.end_time).toLocaleTimeString("ja-JP", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }),
           description: response.data.description,
           location: response.data.location,
         });
         setIsEditing(false); // 表示モードに戻る
       }
     } catch (error) {
-      console.error("APIリクエストに失敗しました:", error.response?.data || error.message);
-      alert(`保存に失敗しました: ${error.response?.data?.detail || error.message}`);
+      console.error(
+        "APIリクエストに失敗しました:",
+        error.response?.data || error.message,
+      );
+      alert(
+        `保存に失敗しました: ${error.response?.data?.detail || error.message}`,
+      );
     }
   };
 
@@ -131,14 +181,19 @@ const EventDetailPage = () => {
       // これにより、現在のURLを置き換え、履歴スタックに新しいエントリを追加しません。
       // 削除後のページ遷移で履歴をクリーンに保つ効果があります。
       navigate(`/day/${event.date}`, { replace: true });
-
     } catch (error) {
-      console.error("イベントの削除に失敗しました:", error.response?.data || error.message);
-      alert(`削除に失敗しました: ${error.response?.data?.detail || error.message}`);
+      console.error(
+        "イベントの削除に失敗しました:",
+        error.response?.data || error.message,
+      );
+      alert(
+        `削除に失敗しました: ${error.response?.data?.detail || error.message}`,
+      );
     }
   };
 
-  if (!event && !isNewEvent) { // 既存イベントが見つからず、新規でもない場合
+  if (!event && !isNewEvent) {
+    // 既存イベントが見つからず、新規でもない場合
     return (
       <div className="event-detail-container">イベントが見つかりません。</div>
     );
@@ -151,7 +206,9 @@ const EventDetailPage = () => {
   return (
     <div className="event-detail-container">
       <div className="event-detail-header">
-        <button onClick={() => navigate(-1)}>&lt; {isNewEvent ? '日表示' : '日表示'}に戻る</button>
+        <button onClick={() => navigate(-1)}>
+          &lt; {isNewEvent ? "日表示" : "日表示"}に戻る
+        </button>
         <h2>{pageTitle}</h2>
         {!isNewEvent && (
           <button
