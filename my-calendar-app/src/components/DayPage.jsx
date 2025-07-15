@@ -175,23 +175,47 @@ const DayPage = () => {
       const suggestionRequestData = {
         free_time_start: freeTimeStart,
         free_time_end: freeTimeEnd,
+        user_preferences: "歩きたい",
       };
 
       console.log("送信する提案リクエスト:", JSON.stringify(suggestionRequestData, null, 2));
-
+      // 囲った部分の前後の予定情報を取得して、提案を作成する部分
       try {
-        const response = await apiClient.post('/suggestions/', suggestionRequestData); // POST /suggestions/
-        console.log("提案結果:", response.data);
-        if (response.data.suggestions && response.data.suggestions.length > 0) {
-          const suggestion = response.data.suggestions[0];
-          alert(`AIからの提案: \nタイトル: ${suggestion.title}\n説明: ${suggestion.description}\n場所: ${suggestion.location || '不明'}\n費用: ${suggestion.estimated_cost || '不明'}\n関連リンク: ${suggestion.source_link || 'なし'}`);
+    const response = await apiClient.post('/planner/generate-plans-from-free-time', suggestionRequestData);
+    console.log("プランナーからの結果:", response.data);
+
+    // レスポンスに 'plans' があり、その中に要素が存在するかチェック
+    if (response.data.plans && response.data.plans.length > 0) {
+        
+        // 最初のプランパターンを取得
+        const planPattern = response.data.plans[0];
+        
+        // プランの中からメインのアクティビティを抽出（通常は2番目のイベント）
+        // イベントが2つ以上あることを確認
+        if (planPattern.events && planPattern.events.length > 1) {
+            const mainActivity = planPattern.events[1]; // 0:移動, 1:アクティビティ, 2:移動
+
+            // プランのテーマと、メインアクティビティの詳細をalertで表示
+            alert(
+                `AIからの提案プラン: \n` +
+                `--------------------\n` +
+                `プランテーマ: ${planPattern.pattern_description}\n` +
+                `--------------------\n` +
+                `アクティビティ: ${mainActivity.title}\n` +
+                `場所: ${mainActivity.location || '不明'}\n` +
+                `内容: ${mainActivity.description || '特になし'}`
+            );
         } else {
-          alert("提案が見つかりませんでした。");
+             alert("提案プランに有効なアクティビティが見つかりませんでした。");
         }
-      } catch (error) {
-        console.error("提案の取得に失敗しました:", error.response?.data || error.message);
-        alert(`提案の取得に失敗しました: ${error.response?.data?.detail || error.message}`);
-      }
+
+    } else {
+        alert("提案プランが見つかりませんでした。");
+    }
+} catch (error) {
+    console.error("プランの取得に失敗しました:", error.response?.data || error.message);
+    alert(`プランの取得に失敗しました: ${error.response?.data?.detail || error.message}`);
+}
     }
 
     setIsDragging(false);
