@@ -5,7 +5,7 @@ import "./MasculineDayPage.css";
 import apiClient from "../api/apiClient"; // APIクライアントをインポート
 
 const MasculineDayPage = () => {
-  const { date } = useParams();
+  const { date } = useParams(); // 'YYYY-MM-DD' 形式
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const eventAreaRef = useRef(null);
@@ -16,12 +16,12 @@ const MasculineDayPage = () => {
 
   // --- イベントデータの取得 ---
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchEventsForDay = async () => { // 関数名を明確にする
       try {
         const startOfDay = `${date}T00:00:00Z`; // UTCとして送信
         const endOfDay = `${date}T23:59:59Z`;   // UTCとして送信
 
-        const response = await apiClient.get('/events/', {
+        const response = await apiClient.get('/events/', { // GET /events/
           params: { start: startOfDay, end: endOfDay }
         });
 
@@ -38,7 +38,7 @@ const MasculineDayPage = () => {
       }
     };
 
-    fetchEvents();
+    fetchEventsForDay(); // 修正後の関数を呼び出す
   }, [date]); // date が変更されるたびにイベントを再取得
 
   // --- 時間とピクセルの変換定数 ---

@@ -2,8 +2,7 @@
 
 @font-face {
   font-family: "TamanegiKaishoGeki";
-  src: url("../assets/玉ねぎ楷書「激」無料版v7/玉ねぎ楷書激無料版v7改.ttf")
-    format("truetype");
+  src: url("../assets/玉ねぎ楷書「激」無料版v7/玉ねぎ楷書激無料版v7改.ttf") format("truetype");
 }
 
 .masculine-day-page-container {
@@ -82,7 +81,7 @@
   border-right: 1px solid #333;
   background-color: #1a1a1a;
   padding-top: 0;
-  /* ★変更: padding-top を 0 にする ★ */
+  /* 0:00 の線とラベルの位置関係を正確にする */
   color: #ccc;
 }
 
@@ -90,21 +89,19 @@
   height: 60px;
   display: flex;
   align-items: flex-start;
-  /* 上端揃えを維持 */
+  /* 上端揃え */
   justify-content: center;
   font-size: 1em;
   color: #999;
   padding-top: 0;
-  /* ★変更: padding-top を 0 にする ★ */
   position: relative;
-  /* relative を追加して top を使えるように */
   top: -8px;
-  /* ★追加: 負の値で上にずらす。これで時間線に合わせる。値は微調整 ★ */
+  /* 負の値で上にずらす。これで時間線に合わせる。値は微調整 */
 }
 
-/* ★追加: 0:00 のラベルを非表示にするためのスタイル ★ */
 .masculine-time-slot-label.masculine-hour-label-zero {
   visibility: hidden;
+  /* 00:00 ラベルを非表示 */
 }
 
 .masculine-event-area {
@@ -129,9 +126,8 @@
   z-index: 0;
 }
 
-/* ★変更: 0:00 の線も表示されるようにする（このルールを削除） ★ */
 .masculine-hour-line:first-child {
-  /* border-top: none; この行を削除 */
+  /* border-top: none; この行を削除し、0:00 の線も表示する */
 }
 
 .masculine-event-block {
