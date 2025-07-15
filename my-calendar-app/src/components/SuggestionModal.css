@@ -1,0 +1,140 @@
+/* src/components/SuggestionModal.css */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* 他の要素より手前に表示 */
+}
+
+.modal-content {
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 800px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  max-height: 90vh;
+  /* 高さ制限 */
+  overflow-y: auto;
+  /* スクロール可能にする */
+}
+
+.modal-close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 2em;
+  cursor: pointer;
+  color: #333;
+}
+
+.modal-content h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 25px;
+  font-size: 2em;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  /* 提案が複数ある場合、折り返す */
+  gap: 20px;
+  justify-content: center;
+}
+
+.suggestion-card {
+  flex: 1;
+  /* スペースを均等に分配 */
+  min-width: 300px;
+  /* カードの最小幅 */
+  max-width: 45%;
+  /* 2つ並べるため */
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* ボタンを下部に */
+}
+
+.suggestion-card h3 {
+  color: #007bff;
+  font-size: 1.5em;
+  margin-top: 0;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.plan-events {
+  margin-bottom: 20px;
+}
+
+.plan-event-item {
+  background: #e9f5ff;
+  border-left: 4px solid #007bff;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 5px;
+  font-size: 0.9em;
+}
+
+.plan-event-item p {
+  margin: 0;
+  line-height: 1.4;
+  color: #555;
+}
+
+.plan-event-item strong {
+  color: #333;
+  display: block;
+  /* タイトルをブロック要素に */
+  margin-bottom: 5px;
+}
+
+.select-plan-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  /* 幅いっぱい */
+}
+
+.select-plan-button:hover {
+  background-color: #218838;
+}
+
+@media (max-width: 768px) {
+  .suggestions-list {
+    flex-direction: column;
+    /* 狭い画面では縦並び */
+    align-items: center;
+  }
+
+  .suggestion-card {
+    max-width: 100%;
+    /* 幅いっぱい */
+  }
+}
