@@ -136,6 +136,32 @@
   gap: 3px;
 }
 
+/* ★変更: AI生成イベントのスタイルを緑系に ★ */
+.event-block.ai-event-block {
+  background-color: #28a745;
+  /* 緑系 */
+  border-left: 5px solid #218838;
+  /* より濃い緑のアクセント */
+}
+
+.event-block.ai-event-block:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+  /* 緑系の影 */
+}
+
+/* AI生成イベントのタイトルや時刻の文字色も調整 */
+.event-block.ai-event-block .event-title {
+  color: #fff;
+  /* 白い文字 */
+}
+
+.event-block.ai-event-block .event-time {
+  color: #d4edda;
+  /* 薄い緑色の文字 */
+}
+
 .event-block:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);

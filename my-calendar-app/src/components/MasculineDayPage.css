@@ -150,6 +150,31 @@
     transform 0.1s ease;
 }
 
+.masculine-event-block.ai-event-block {
+  background-color: #006400;
+  /* 濃い緑 */
+  border-left: 5px solid #32cd32;
+  /* ライムグリーン系のアクセント */
+}
+
+.masculine-event-block.ai-event-block:hover {
+  background-color: #004c00;
+  border-color: #22a022;
+  box-shadow: 0 6px 15px rgba(0, 128, 0, 0.4);
+  /* 緑の影を強調 */
+}
+
+.masculine-event-block.ai-event-block .masculine-event-title {
+  color: #fff;
+  /* 白い文字 */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.masculine-event-block.ai-event-block .masculine-event-time {
+  color: #90ee90;
+  /* 明るい緑色の文字 */
+}
+
 .masculine-event-block:hover {
   box-shadow: 0 5px 12px rgba(255, 69, 0, 0.5);
   transform: translateY(-2px);
