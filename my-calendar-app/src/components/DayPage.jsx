@@ -2,9 +2,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./DayPage.css";
+import apiClient from "../api/apiClient"; // APIクライアントをインポート
 
 const DayPage = () => {
-  const { date } = useParams();
+  const { date } = useParams(); // 'YYYY-MM-DD' 形式
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const eventAreaRef = useRef(null);
@@ -13,37 +14,45 @@ const DayPage = () => {
   const [dragStartPos, setDragStartPos] = useState(null);
   const [dragCurrentPos, setDragCurrentPos] = useState(null);
 
-  const dummyEvents = {
-    "2025-07-01": [
-      { id: "1", title: "チームミーティング", start: "10:00", end: "11:30" },
-      { id: "2", title: "資料作成", start: "14:00", end: "16:00" },
-    ],
-    "2025-07-08": [
-      { id: "8", title: "企画会議", start: "09:30", end: "12:00" },
-      { id: "9", title: "ランチ", start: "12:00", end: "13:00" },
-      // ここに他のテストイベントを追加できます。例:
-      // { id: "10", title: "休憩", start: "15:00", end: "15:30" }
-    ],
-    // EventDetailPage.jsx の allDummyEvents も参照し、必要に応じてダミーデータを追加してください。
-  };
-
+  // --- イベントデータの取得 ---
   useEffect(() => {
-    const selectedDateEvents = dummyEvents[date] || [];
-    setEvents(
-      selectedDateEvents.map((event) => ({ ...event, id: String(event.id) })),
-    );
-  }, [date]);
+    const fetchEventsForDay = async () => { // 関数名を明確にする
+      try {
+        const startOfDay = `${date}T00:00:00Z`; // UTCとして送信
+        const endOfDay = `${date}T23:59:59Z`;   // UTCとして送信
 
+        const response = await apiClient.get('/events/', { // GET /events/
+          params: { start: startOfDay, end: endOfDay }
+        });
+
+        setEvents(response.data.map(event => ({
+          ...event,
+          id: String(event.id), // IDを文字列に変換
+          start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        })));
+      } catch (error) {
+        console.error("イベントの取得に失敗しました:", error.response?.data || error.message);
+        alert(`イベントの取得に失敗しました: ${error.response?.data?.detail || error.message}`);
+        setEvents([]);
+      }
+    };
+
+    fetchEventsForDay(); // 修正後の関数を呼び出す
+  }, [date]); // date が変更されるたびにイベントを再取得
+
+  // --- 時間とピクセルの変換定数 ---
   const PX_PER_HOUR = 60;
   const timeToMinutes = (time) => {
     const [hour, minute] = time.split(":").map(Number);
     return hour * 60 + minute;
   };
 
+  // --- イベントレイアウト計算ロジック ---
   const calculateEventLayout = (allEvents) => {
-    const sortedEvents = [...allEvents].sort(
-      (a, b) => timeToMinutes(a.start) - timeToMinutes(b.start),
-    );
+    const sortedEvents = [...allEvents].sort((a, b) => {
+      return timeToMinutes(a.start) - timeToMinutes(b.start);
+    });
     const arrangedEvents = [];
     sortedEvents.forEach((event) => {
       const startMin = timeToMinutes(event.start);
@@ -111,11 +120,12 @@ const DayPage = () => {
 
   const arrangedEvents = calculateEventLayout(events);
 
-  // ★重要: timeSlotsLabels の定義をこちらに統一します。これ以外の timeSlots 定義は削除します。
+  // --- timeSlotsLabels の定義 ---
   const timeSlotsLabels = Array.from({ length: 24 }, (_, i) => {
-    return i === 0 ? "" : `${String(i).padStart(2, "0")}:00`;
+    return i === 0 ? '' : `${String(i).padStart(2, "0")}:00`;
   });
 
+  // --- ドラッグ操作のイベントハンドラ ---
   const handleMouseDown = (e) => {
     if (e.target !== eventAreaRef.current) return;
     setIsDragging(true);
@@ -132,7 +142,7 @@ const DayPage = () => {
     setDragCurrentPos(posY);
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = async () => {
     if (!isDragging) return;
 
     const startY = Math.min(dragStartPos, dragCurrentPos);
@@ -149,29 +159,39 @@ const DayPage = () => {
 
     if (isOverlapping) {
       console.log("選択範囲に既存の予定が含まれています。");
-    } else if (endMin - startMin > 1) {
+      alert("選択範囲に既存の予定が含まれています。");
+    } else if (endMin - startMin > 1) { // 1分以上の選択のみ有効
       const formatTime = (totalMinutes) => {
         const hours = Math.floor(totalMinutes / 60);
-        const minutes = Math.round(totalMinutes / 60); // minutesは60で割るのではなく、分そのものを表示
+        const minutes = Math.round(totalMinutes % 60);
         return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
       };
       const startTimeStr = formatTime(startMin);
       const endTimeStr = formatTime(endMin);
 
-      // ISO 8601 形式の文字列に変換
-      const getISOString = (timeStr) => {
-        // `timeStr` is already formatted as HH:mm.
-        return `${date}T${timeStr}:00`;
+      const freeTimeStart = `${date}T${startTimeStr}:00Z`; // UTCとして送信
+      const freeTimeEnd = `${date}T${endTimeStr}:00Z`;     // UTCとして送信
+
+      const suggestionRequestData = {
+        free_time_start: freeTimeStart,
+        free_time_end: freeTimeEnd,
       };
 
-      const freeTimeStart = getISOString(startTimeStr);
-      const freeTimeEnd = getISOString(endTimeStr);
+      console.log("送信する提案リクエスト:", JSON.stringify(suggestionRequestData, null, 2));
 
-      const jsonData = [
-        { free_time_start: freeTimeStart },
-        { free_time_end: freeTimeEnd },
-      ];
-      console.log("送信するJSON:", JSON.stringify(jsonData, null, 2));
+      try {
+        const response = await apiClient.post('/suggestions/', suggestionRequestData); // POST /suggestions/
+        console.log("提案結果:", response.data);
+        if (response.data.suggestions && response.data.suggestions.length > 0) {
+          const suggestion = response.data.suggestions[0];
+          alert(`AIからの提案: \nタイトル: ${suggestion.title}\n説明: ${suggestion.description}\n場所: ${suggestion.location || '不明'}\n費用: ${suggestion.estimated_cost || '不明'}\n関連リンク: ${suggestion.source_link || 'なし'}`);
+        } else {
+          alert("提案が見つかりませんでした。");
+        }
+      } catch (error) {
+        console.error("提案の取得に失敗しました:", error.response?.data || error.message);
+        alert(`提案の取得に失敗しました: ${error.response?.data?.detail || error.message}`);
+      }
     }
 
     setIsDragging(false);
@@ -179,6 +199,7 @@ const DayPage = () => {
     setDragCurrentPos(null);
   };
 
+  // --- ドラッグ選択範囲のスタイルを計算 ---
   const getSelectionBoxStyle = () => {
     if (!isDragging) return { display: "none" };
     const startY = Math.min(dragStartPos, dragCurrentPos);
@@ -204,12 +225,8 @@ const DayPage = () => {
 
       <div className="day-view-grid">
         <div className="time-axis">
-          {/* ★変更: timeSlotsLabels を使用し、0:00 非表示クラスを追加 ★ */}
           {timeSlotsLabels.map((time, index) => (
-            <div
-              key={index}
-              className={`time-slot-label ${index === 0 ? "hour-label-zero" : ""}`}
-            >
+            <div key={index} className={`time-slot-label ${index === 0 ? 'hour-label-zero' : ''}`}>
               {time}
             </div>
           ))}
@@ -220,7 +237,7 @@ const DayPage = () => {
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          onMouseLeave={handleMouseUp} // エリア外に出たらドラッグ終了
         >
           <div className="selection-box" style={getSelectionBoxStyle()}></div>
 
@@ -237,24 +254,17 @@ const DayPage = () => {
                 <div className="event-title">{event.title}</div>
                 <div className="event-time">
                   {event.start} - {event.end}
-                </div>{" "}
-                {/* ★変更: event.time を追加 ★ */}
+                </div>
               </div>
             ))
           )}
-          {/* 1時間ごとの区切り線 */}
-          {timeSlotsLabels.map(
-            (
-              _,
-              index, // ★変更: timeSlotsLabels を使用 ★
-            ) => (
-              <div
-                key={`line-${index}`}
-                className="hour-line"
-                style={{ top: `${index * PX_PER_HOUR}px` }}
-              ></div>
-            ),
-          )}
+          {timeSlotsLabels.map((_, index) => ( // 区切り線も timeSlotsLabels を使用
+            <div
+              key={`line-${index}`}
+              className="hour-line"
+              style={{ top: `${index * PX_PER_HOUR}px` }}
+            ></div>
+          ))}
         </div>
       </div>
     </div>

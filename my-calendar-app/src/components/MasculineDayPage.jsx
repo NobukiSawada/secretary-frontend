@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./MasculineDayPage.css";
+import apiClient from "../api/apiClient"; // APIクライアントをインポート
 
 const MasculineDayPage = () => {
   const { date } = useParams();
@@ -13,38 +14,45 @@ const MasculineDayPage = () => {
   const [dragStartPos, setDragStartPos] = useState(null);
   const [dragCurrentPos, setDragCurrentPos] = useState(null);
 
-  const allDummyEvents = [
-    {
-      id: "1",
-      title: "チームミーティング",
-      start: "10:00",
-      end: "11:30",
-      date: "2025-06-24",
-      description: "週次報告と進捗確認",
-      location: "オンライン",
-    },
-    // ... 他のイベントデータ
-  ];
-
+  // --- イベントデータの取得 ---
   useEffect(() => {
-    const selectedDateEvents = allDummyEvents.filter(
-      (event) => event.date === date,
-    );
-    setEvents(
-      selectedDateEvents.map((event) => ({ ...event, id: String(event.id) })),
-    );
-  }, [date]);
+    const fetchEvents = async () => {
+      try {
+        const startOfDay = `${date}T00:00:00Z`; // UTCとして送信
+        const endOfDay = `${date}T23:59:59Z`;   // UTCとして送信
 
+        const response = await apiClient.get('/events/', {
+          params: { start: startOfDay, end: endOfDay }
+        });
+
+        setEvents(response.data.map(event => ({
+          ...event,
+          id: String(event.id), // IDを文字列に変換
+          start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        })));
+      } catch (error) {
+        console.error("イベントの取得に失敗しました:", error.response?.data || error.message);
+        alert(`イベントの取得に失敗しました: ${error.response?.data?.detail || error.message}`);
+        setEvents([]);
+      }
+    };
+
+    fetchEvents();
+  }, [date]); // date が変更されるたびにイベントを再取得
+
+  // --- 時間とピクセルの変換定数 ---
   const PX_PER_HOUR = 60;
   const timeToMinutes = (time) => {
     const [hour, minute] = time.split(":").map(Number);
     return hour * 60 + minute;
   };
 
+  // --- イベントレイアウト計算ロジック ---
   const calculateEventLayout = (allEvents) => {
-    const sortedEvents = [...allEvents].sort(
-      (a, b) => timeToMinutes(a.start) - timeToMinutes(b.start),
-    );
+    const sortedEvents = [...allEvents].sort((a, b) => {
+      return timeToMinutes(a.start) - timeToMinutes(b.start);
+    });
     const arrangedEvents = [];
     sortedEvents.forEach((event) => {
       const startMin = timeToMinutes(event.start);
@@ -112,11 +120,12 @@ const MasculineDayPage = () => {
 
   const arrangedEvents = calculateEventLayout(events);
 
-  // ★重要: timeSlotsLabels の定義をこちらに統一します。これ以外の timeSlots 定義は削除します。
+  // --- timeSlotsLabels の定義 ---
   const timeSlotsLabels = Array.from({ length: 24 }, (_, i) => {
-    return i === 0 ? "" : `${String(i).padStart(2, "0")}:00`;
+    return i === 0 ? '' : `${String(i).padStart(2, "0")}:00`;
   });
 
+  // --- ドラッグ操作のイベントハンドラ ---
   const handleMouseDown = (e) => {
     if (e.target !== eventAreaRef.current) return;
     setIsDragging(true);
@@ -133,7 +142,7 @@ const MasculineDayPage = () => {
     setDragCurrentPos(posY);
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = async () => {
     if (!isDragging) return;
 
     const startY = Math.min(dragStartPos, dragCurrentPos);
@@ -150,7 +159,8 @@ const MasculineDayPage = () => {
 
     if (isOverlapping) {
       console.log("選択範囲に既存の予定が含まれています。");
-    } else if (endMin - startMin > 1) {
+      alert("選択範囲に既存の予定が含まれています。");
+    } else if (endMin - startMin > 1) { // 1分以上の選択のみ有効
       const formatTime = (totalMinutes) => {
         const hours = Math.floor(totalMinutes / 60);
         const minutes = Math.round(totalMinutes % 60);
@@ -159,20 +169,29 @@ const MasculineDayPage = () => {
       const startTimeStr = formatTime(startMin);
       const endTimeStr = formatTime(endMin);
 
-      const formatToLocalTime = (timeStr) => {
-        // `timeStr` is formatted as HH:mm.
-        // This creates a local time string without a timezone offset.
-        return `${date}T${timeStr}:00`;
+      const freeTimeStart = `${date}T${startTimeStr}:00Z`; // UTCとして送信
+      const freeTimeEnd = `${date}T${endTimeStr}:00Z`;     // UTCとして送信
+
+      const suggestionRequestData = {
+        free_time_start: freeTimeStart,
+        free_time_end: freeTimeEnd,
       };
 
-      const freeTimeStart = formatToLocalTime(startTimeStr);
-      const freeTimeEnd = formatToLocalTime(endTimeStr);
+      console.log("送信する提案リクエスト:", JSON.stringify(suggestionRequestData, null, 2));
 
-      const jsonData = [
-        { free_time_start: freeTimeStart },
-        { free_time_end: freeTimeEnd },
-      ];
-      console.log("送信するJSON:", JSON.stringify(jsonData, null, 2));
+      try {
+        const response = await apiClient.post('/suggestions/', suggestionRequestData); // POST /suggestions/
+        console.log("提案結果:", response.data);
+        if (response.data.suggestions && response.data.suggestions.length > 0) {
+          const suggestion = response.data.suggestions[0];
+          alert(`AIからの提案: \nタイトル: ${suggestion.title}\n説明: ${suggestion.description}\n場所: ${suggestion.location || '不明'}\n費用: ${suggestion.estimated_cost || '不明'}\n関連リンク: ${suggestion.source_link || 'なし'}`);
+        } else {
+          alert("提案が見つかりませんでした。");
+        }
+      } catch (error) {
+        console.error("提案の取得に失敗しました:", error.response?.data || error.message);
+        alert(`提案の取得に失敗しました: ${error.response?.data?.detail || error.message}`);
+      }
     }
 
     setIsDragging(false);
@@ -198,21 +217,14 @@ const MasculineDayPage = () => {
       <div className="masculine-day-page-header">
         <button onClick={() => navigate(-1)}>&lt; カレンダーに戻る</button>
         <h2>{date} の予定</h2>
-        <button
-          onClick={handleAddEventClick}
-          className="masculine-add-event-button"
-        >
+        <button onClick={handleAddEventClick} className="masculine-add-event-button">
           予定を追加
         </button>
       </div>
       <div className="masculine-day-view-grid">
         <div className="masculine-time-axis">
-          {/* ★変更: timeSlotsLabels を使用し、0:00 非表示クラスを追加 ★ */}
           {timeSlotsLabels.map((time, index) => (
-            <div
-              key={index}
-              className={`masculine-time-slot-label ${index === 0 ? "masculine-hour-label-zero" : ""}`}
-            >
+            <div key={index} className={`masculine-time-slot-label ${index === 0 ? 'masculine-hour-label-zero' : ''}`}>
               {time}
             </div>
           ))}
@@ -225,10 +237,7 @@ const MasculineDayPage = () => {
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
         >
-          <div
-            className="masculine-selection-box"
-            style={getSelectionBoxStyle()}
-          ></div>
+          <div className="masculine-selection-box" style={getSelectionBoxStyle()}></div>
 
           {arrangedEvents.length === 0 ? (
             <p className="no-events">この日にはまだ予定がありません。</p>
@@ -247,19 +256,13 @@ const MasculineDayPage = () => {
               </div>
             ))
           )}
-          {/* 1時間ごとの区切り線 */}
-          {timeSlotsLabels.map(
-            (
-              _,
-              index, // ★変更: timeSlotsLabels を使用 ★
-            ) => (
-              <div
-                key={`line-${index}`}
-                className="masculine-hour-line"
-                style={{ top: `${index * PX_PER_HOUR}px` }}
-              ></div>
-            ),
-          )}
+          {timeSlotsLabels.map((_, index) => (
+            <div
+              key={`line-${index}`}
+              className="masculine-hour-line"
+              style={{ top: `${index * PX_PER_HOUR}px` }}
+            ></div>
+          ))}
         </div>
       </div>
     </div>

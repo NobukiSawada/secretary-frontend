@@ -2,205 +2,138 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import "./EventDetailPage.css";
+import apiClient from "../api/apiClient"; // APIクライアントをインポート
 
 const EventDetailPage = () => {
-  const { eventId } = useParams();
+  const { eventId } = useParams(); // URLからイベントIDを取得
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams(); // クエリパラメータを取得
 
-  const [event, setEvent] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [event, setEvent] = useState(null); // 選択されたイベントの情報を格納
+  const [isEditing, setIsEditing] = useState(false); // 編集モードかどうか
   const [editedTitle, setEditedTitle] = useState("");
   const [editedStart, setEditedStart] = useState("");
   const [editedEnd, setEditedEnd] = useState("");
   const [editedDescription, setEditedDescription] = useState("");
-  const [editedLocation, setEditedLocation] = useState(""); // ★追加: 場所のステート ★
+  const [editedLocation, setEditedLocation] = useState("");
 
-  const [isNewEvent, setIsNewEvent] = useState(false);
+  const [isNewEvent, setIsNewEvent] = useState(false); // 新規イベントかどうかを判定
 
-  const [allDummyEvents, setAllDummyEvents] = useState([
-    {
-      id: "1",
-      title: "チームミーティング",
-      start: "10:00",
-      end: "11:30",
-      date: "2025-06-24",
-      description: "週次報告と進捗確認",
-      location: "オンライン",
-    }, // ★変更: location追加 ★
-    {
-      id: "2",
-      title: "資料作成",
-      start: "14:00",
-      end: "16:00",
-      date: "2025-06-24",
-      description: "新規プロジェクトの提案資料",
-      location: "オフィス",
-    }, // ★変更: location追加 ★
-    {
-      id: "3",
-      title: "クライアント連絡",
-      start: "17:00",
-      end: "17:30",
-      date: "2025-06-24",
-      description: "A社への進捗報告",
-      location: "本社",
-    }, // ★変更: location追加 ★
-    {
-      id: "4",
-      title: "緊急A会議",
-      start: "10:30",
-      end: "12:00",
-      date: "2025-06-24",
-      description: "緊急の課題について議論",
-      location: "会議室A",
-    }, // ★変更: location追加 ★
-    {
-      id: "5",
-      title: "緊急B会議",
-      start: "10:45",
-      end: "11:45",
-      date: "2025-06-24",
-      description: "追加の課題について議論",
-      location: "会議室B",
-    }, // ★変更: location追加 ★
-    {
-      id: "6",
-      title: "夕食の準備",
-      start: "18:00",
-      end: "19:00",
-      date: "2025-06-24",
-      description: "献立はカレー",
-      location: "自宅",
-    }, // ★変更: location追加 ★
-    {
-      id: "7",
-      title: "オンラインレッスン",
-      start: "18:30",
-      end: "20:00",
-      date: "2025-06-24",
-      description: "英語のオンラインレッスン",
-      location: "オンライン",
-    }, // ★変更: location追加 ★
-    {
-      id: "8",
-      title: "企画会議",
-      start: "09:30",
-      end: "12:00",
-      date: "2025-06-25",
-      description: "新企画のアイデア出し",
-      location: "会議室C",
-    }, // ★変更: location追加 ★
-    {
-      id: "9",
-      title: "ランチ",
-      start: "12:00",
-      end: "13:00",
-      date: "2025-06-25",
-      description: "同僚とランチ",
-      location: "社食",
-    }, // ★変更: location追加 ★
-  ]);
-
+  // イベントIDが変更されたときにイベントデータを取得
   useEffect(() => {
-    const isNew = eventId === "new";
-    setIsNewEvent(isNew);
-    setIsEditing(isNew);
+    const fetchEvent = async () => {
+      const isNew = eventId === "new";
+      setIsNewEvent(isNew);
+      setIsEditing(isNew); // 新規イベントの場合は最初から編集モード
 
-    if (isNew) {
-      const prefilledDate = searchParams.get("date") || "";
-      setEvent({
-        id: "temp-" + Date.now(),
-        title: "",
-        start: "",
-        end: "",
-        date: prefilledDate,
-        description: "",
-        location: "", // ★追加: 新規イベントの初期値にlocationを設定 ★
-      });
-      setEditedTitle("");
-      setEditedStart("");
-      setEditedEnd("");
-      setEditedDescription("");
-      setEditedLocation(""); // ★追加: editedLocationも初期化 ★
-    } else {
-      const foundEvent = allDummyEvents.find((e) => e.id === eventId);
-      setEvent(foundEvent);
-      if (foundEvent) {
-        setEditedTitle(foundEvent.title);
-        setEditedStart(foundEvent.start);
-        setEditedEnd(foundEvent.end);
-        setEditedDescription(foundEvent.description || "");
-        setEditedLocation(foundEvent.location || ""); // ★追加: 既存イベントのlocationをセット ★
+      if (isNew) {
+        const prefilledDate = searchParams.get('date') || '';
+        setEvent({
+          id: "temp-" + Date.now(), title: "", start: "", end: "", date: prefilledDate, description: "", location: "",
+        });
+        setEditedTitle(""); setEditedStart(""); setEditedEnd(""); setEditedDescription(""); setEditedLocation("");
       } else {
-        // イベントが見つからない場合
-        // navigate(-1);
+        // 既存イベントの場合、IDで検索し、バックエンドから取得
+        try {
+          const response = await apiClient.get(`/events/${eventId}`); // GET /events/{event_id}
+          const fetchedEvent = response.data;
+          setEvent({
+            ...fetchedEvent,
+            id: String(fetchedEvent.id), // IDを文字列に変換
+            // FastAPIから返される start_time, end_time (ISO文字列) を表示用に変換
+            start: new Date(fetchedEvent.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+            end: new Date(fetchedEvent.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+            date: new Date(fetchedEvent.start_time).toISOString().split('T')[0], // YYYY-MM-DD形式
+          });
+          setEditedTitle(fetchedEvent.title);
+          setEditedStart(new Date(fetchedEvent.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }));
+          setEditedEnd(new Date(fetchedEvent.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }));
+          setEditedDescription(fetchedEvent.description || "");
+          setEditedLocation(fetchedEvent.location || "");
+        } catch (error) {
+          console.error("イベントの読み込みに失敗しました:", error.response?.data || error.message);
+          alert(`イベントの読み込みに失敗しました: ${error.response?.data?.detail || error.message}`);
+          setEvent(null); // イベントが見つからない場合やエラー時
+        }
       }
-    }
-  }, [eventId, searchParams, allDummyEvents]);
+    };
+    fetchEvent();
+  }, [eventId, searchParams, navigate]);
 
-  const handleSave = (e) => {
+  // 新規追加と更新を処理する関数
+  const handleSave = async (e) => {
     e.preventDefault();
 
+    // --- 入力検証 ---
     if (!editedTitle || !editedStart || !editedEnd) {
       alert("タイトルと開始/終了時刻は必須です。");
       return;
     }
 
-    const startMin =
-      parseInt(editedStart.split(":")[0]) * 60 +
-      parseInt(editedStart.split(":")[1]);
-    const endMin =
-      parseInt(editedEnd.split(":")[0]) * 60 +
-      parseInt(editedEnd.split(":")[1]);
+    const startMin = parseInt(editedStart.split(":")[0]) * 60 + parseInt(editedStart.split(":")[1]);
+    const endMin = parseInt(editedEnd.split(":")[0]) * 60 + parseInt(editedEnd.split(":")[1]);
 
     if (startMin >= endMin) {
       alert("終了時刻は開始時刻より後に設定してください。");
       return;
     }
 
-    const newOrUpdatedEvent = {
-      ...event,
-      id: isNewEvent ? String(Date.now()) : event.id,
+    // 日付と時刻を結合して ISO 8601 形式の文字列を生成
+    const eventDate = isNewEvent ? searchParams.get('date') : event.date; // 新規作成時は URL から日付を取得
+    const startDateTime = `${eventDate}T${editedStart}:00Z`; // UTCとして送信
+    const endDateTime = `${eventDate}T${editedEnd}:00Z`;     // UTCとして送信
+
+    const eventData = {
       title: editedTitle,
-      start: editedStart,
-      end: editedEnd,
-      description: editedDescription,
-      location: editedLocation, // ★変更: locationを追加 ★
-      date: isNewEvent ? searchParams.get("date") : event.date,
+      start_time: startDateTime,
+      end_time: endDateTime,
+      location: editedLocation || null, // null を送信 (FastAPIのOptionalに合わせる)
+      description: editedDescription || null,
     };
 
-    if (isNewEvent) {
-      console.log("新規イベントを追加:", newOrUpdatedEvent);
-      setAllDummyEvents((prevEvents) => [...prevEvents, newOrUpdatedEvent]);
-      alert("新しいイベントを追加しました (ダミー)！");
-      navigate(`/day/${newOrUpdatedEvent.date}`);
-    } else {
-      console.log("イベントを更新:", newOrUpdatedEvent);
-      setAllDummyEvents((prevEvents) =>
-        prevEvents.map((e) =>
-          e.id === newOrUpdatedEvent.id ? newOrUpdatedEvent : e,
-        ),
-      );
-      alert("イベントを更新しました (ダミー)！");
-      setEvent(newOrUpdatedEvent);
-      setIsEditing(false);
+    try {
+      if (isNewEvent) {
+        const response = await apiClient.post('/events/', eventData); // POST /events/
+        console.log("新規イベントを追加:", response.data);
+        alert("新しいイベントを追加しました！");
+        navigate(`/day/${eventDate}`); // DayPageに戻る
+      } else {
+        const response = await apiClient.put(`/events/${event.id}`, eventData); // PUT /events/{event_id}
+        console.log("イベントを更新:", response.data);
+        alert("イベントを更新しました！");
+        setEvent({
+          ...event, // 更新されたデータで event state を更新
+          title: response.data.title,
+          start: new Date(response.data.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          end: new Date(response.data.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          description: response.data.description,
+          location: response.data.location,
+        });
+        setIsEditing(false); // 表示モードに戻る
+      }
+    } catch (error) {
+      console.error("APIリクエストに失敗しました:", error.response?.data || error.message);
+      alert(`保存に失敗しました: ${error.response?.data?.detail || error.message}`);
     }
   };
 
-  const handleDelete = () => {
+  // イベントの削除を処理する関数
+  const handleDelete = async () => {
     if (!window.confirm("この予定を本当に削除しますか？")) {
       return;
     }
-    console.log("イベントを削除:", event.id);
-    setAllDummyEvents((prevEvents) =>
-      prevEvents.filter((e) => e.id !== event.id),
-    );
-    alert("イベントを削除しました (ダミー)！");
-    navigate(`/day/${event.date}`);
+    try {
+      await apiClient.delete(`/events/${event.id}`); // DELETE /events/{event_id}
+      console.log("イベントを削除:", event.id);
+      alert("イベントを削除しました！");
+      navigate(`/day/${event.date}`); // 削除後、日表示ページに戻る
+    } catch (error) {
+      console.error("イベントの削除に失敗しました:", error.response?.data || error.message);
+      alert(`削除に失敗しました: ${error.response?.data?.detail || error.message}`);
+    }
   };
 
-  if (!event && !isNewEvent) {
+  if (!event && !isNewEvent) { // 既存イベントが見つからず、新規でもない場合
     return (
       <div className="event-detail-container">イベントが見つかりません。</div>
     );
@@ -213,9 +146,7 @@ const EventDetailPage = () => {
   return (
     <div className="event-detail-container">
       <div className="event-detail-header">
-        <button onClick={() => navigate(-1)}>
-          &lt; {isNewEvent ? "日表示" : "日表示"}に戻る
-        </button>
+        <button onClick={() => navigate(-1)}>&lt; {isNewEvent ? '日表示' : '日表示'}に戻る</button>
         <h2>{pageTitle}</h2>
         {!isNewEvent && (
           <button
@@ -228,6 +159,7 @@ const EventDetailPage = () => {
       </div>
 
       {isEditing ? (
+        // 編集・新規作成フォーム
         <form onSubmit={handleSave} className="event-edit-form">
           <div className="form-group">
             <label htmlFor="title">タイトル:</label>
@@ -259,7 +191,6 @@ const EventDetailPage = () => {
               required
             />
           </div>
-          {/* ★追加: 場所の入力フィールド ★ */}
           <div className="form-group">
             <label htmlFor="location">場所:</label>
             <input
@@ -290,6 +221,7 @@ const EventDetailPage = () => {
           </button>
         </form>
       ) : (
+        // 表示モードのUI
         <div className="event-display-details">
           <h3>{event.title}</h3>
           <p>
@@ -298,7 +230,6 @@ const EventDetailPage = () => {
           <p>
             <strong>時間:</strong> {event.start} - {event.end}
           </p>
-          {/* ★追加: 場所の表示 ★ */}
           <p>
             <strong>場所:</strong> {event.location || "場所の指定なし"}
           </p>

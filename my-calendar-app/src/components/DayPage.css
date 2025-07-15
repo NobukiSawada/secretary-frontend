@@ -28,13 +28,11 @@
   font-size: 2em;
   font-weight: 600;
   flex-grow: 1;
-  /* タイトルが中央に寄るように */
   text-align: center;
 }
 
 .day-page-header button {
   background-color: #6c757d;
-  /* 戻るボタンの色 */
   color: white;
   border: none;
   padding: 8px 15px;
@@ -54,7 +52,6 @@
 
 .day-page-header .add-event-button {
   background-color: #28a745;
-  /* 予定追加ボタンの色 */
 }
 
 .day-page-header .add-event-button:hover {
@@ -63,15 +60,11 @@
 
 .day-view-grid {
   display: flex;
-  /* 時間軸とイベントエリアを横並びに */
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
-  /* イベントがはみ出さないように */
   background-color: #ffffff;
 }
-
-/* src/components/DayPage.css */
 
 .time-axis {
   width: 80px;
@@ -79,23 +72,21 @@
   border-right: 1px solid #eee;
   background-color: #f8f9fa;
   padding-top: 0;
-  /* ★変更: padding-top を 0 にして、0:00 の線とラベルの位置関係を正確にする ★ */
+  /* 0:00 の線とラベルの位置関係を正確にする */
 }
 
 .time-slot-label {
   height: 60px;
   display: flex;
   align-items: flex-start;
-  /* 上端揃えを維持 */
+  /* 上端揃え */
   justify-content: center;
   font-size: 0.9em;
   color: #555;
   padding-top: 0;
-  /* ★変更: padding-top を 0 にして、CSSで直接調整せず、相対位置で調整 ★ */
   position: relative;
-  /* relative を追加して top を使えるように */
   top: -8px;
-  /* ★追加: 負の値で上にずらす。これで時間線に合わせる。値は微調整 ★ */
+  /* 負の値で上にずらす。これで時間線に合わせる。値は微調整 */
 }
 
 .time-slot-label.hour-label-zero {
@@ -111,20 +102,15 @@
   z-index: 0;
 }
 
-/* ★変更: hour-line:first-child のスタイルを削除し、0:00 の線も表示する ★ */
 .hour-line:first-child {
-  /* border-top: none; この行を削除 */
+  /* border-top: none; この行を削除し、0:00 の線も表示する */
 }
 
 .event-area {
   flex-grow: 1;
-  /* 残りのスペースを全て占める */
   position: relative;
-  /* イベントブロックの絶対配置の基準にする */
   min-height: calc(24 * 60px + 20px);
-  /* 24時間分の高さ + 余白 */
   padding: 10px;
-  /* イベントエリア内のパディング */
 }
 
 .no-events {
@@ -136,23 +122,14 @@
 
 .event-block {
   position: absolute;
-  /* 親要素 (.event-area) に対して絶対配置 */
-  left: 10px;
-  /* 左からの位置 */
-  right: 10px;
-  /* 右からの位置 */
   background-color: #85c1e9;
-  /* イベントブロックの背景色 (水色系) */
   border-radius: 5px;
   padding: 8px 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  /* 内容がはみ出したら隠す */
   cursor: pointer;
   z-index: 1;
-  /* 時間線より手前に表示 */
   border-left: 5px solid #3498db;
-  /* 左側にアクセントライン */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -179,16 +156,12 @@
   color: #4a6a8c;
 }
 
-/* --- ドラッグ選択用のスタイルを追加 --- */
 .selection-box {
   position: absolute;
   left: 0;
   right: 0;
   background-color: rgba(40, 167, 69, 0.3);
-  /* 半透明の緑 */
   border: 1px dashed #28a745;
   z-index: 5;
-  /* 時間線より手前、イベントより奥 */
   pointer-events: none;
-  /* この要素自身がマウスイベントを妨げないように */
 }

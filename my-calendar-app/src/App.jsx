@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useState, useEffect } from "react";
-// BrowserRouter と Routes, Route は main.jsx に移動するため、ここでは useNavigate だけをインポート
-import { Routes, Route, useNavigate } from "react-router-dom"; // ★変更: BrowserRouter を削除 ★
+// BrowserRouter は main.jsx に移動するため、ここでは Routes, Route, useNavigate だけをインポート
+import { Routes, Route, useNavigate } from "react-router-dom";
 import "./App.css";
 
 import LoginPage from "./components/LoginPage";
@@ -13,10 +13,10 @@ import MasculineDayPage from "./components/MasculineDayPage";
 import LoadingAnimationPage from "./components/LoadingAnimationPage";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // ログイン状態を一旦 true に固定
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // ログイン状態を一旦 true に固定（テスト用）
   const [masculineMode, setMasculineMode] = useState(false); // 漢モードの状態管理
 
-  // ★ここです！useNavigate を App コンポーネントのトップレベルで安全に呼び出せます ★
+  // useNavigate を App コンポーネントのトップレベルで呼び出します
   const navigate = useNavigate();
 
   const handleLoginSuccess = () => {
@@ -24,10 +24,11 @@ function App() {
   };
 
   const toggleMasculineMode = (targetMode) => {
-    if (targetMode === "masculine" && !masculineMode) {
-      navigate("/loading?to=/masculine-calendar");
-    } else if (targetMode === "gentle" && masculineMode) {
-      navigate("/loading?to=/");
+    // 現在のモードと異なる場合のみ遷移をトリガー
+    if (targetMode === 'masculine' && !masculineMode) {
+      navigate('/loading?to=/masculine-calendar');
+    } else if (targetMode === 'gentle' && masculineMode) {
+      navigate('/loading?to=/');
     }
   };
 
@@ -35,33 +36,29 @@ function App() {
   useEffect(() => {
     if (document.body) {
       if (masculineMode) {
-        document.body.classList.add("masculine-mode");
+        document.body.classList.add('masculine-mode');
       } else {
-        document.body.classList.remove("masculine-mode");
+        document.body.classList.remove('masculine-mode');
       }
     }
 
     const currentPath = window.location.pathname;
-    if (currentPath === "/masculine-calendar" && !masculineMode) {
+    if (currentPath === '/masculine-calendar' && !masculineMode) {
       setMasculineMode(true);
-    } else if (currentPath === "/" && masculineMode) {
+    } else if (currentPath === '/' && masculineMode) {
       setMasculineMode(false);
     }
   }, [masculineMode, window.location.pathname]);
 
   return (
-    // ★変更: <Router> を削除し、直下に <div> を配置 ★
+    // <Router> は main.jsx に移動したため、ここでは削除し、直下に <div> を配置
     <div className="App">
-      <Routes>
-        {" "}
-        {/* Routes は App の中で使えます */}
+      <Routes> {/* Routes は App の中で使えます */}
         <Route
           path="/"
           element={
             isLoggedIn ? (
-              <CalendarPage
-                onToggleMode={() => toggleMasculineMode("masculine")}
-              />
+              <CalendarPage onToggleMode={() => toggleMasculineMode('masculine')} />
             ) : (
               <LoginPage onLoginSuccess={handleLoginSuccess} />
             )
@@ -69,11 +66,7 @@ function App() {
         />
         <Route
           path="/masculine-calendar"
-          element={
-            <MasculineCalendarPage
-              onToggleMode={() => toggleMasculineMode("gentle")}
-            />
-          }
+          element={<MasculineCalendarPage onToggleMode={() => toggleMasculineMode('gentle')} />}
         />
         <Route path="/loading" element={<LoadingAnimationPage />} />
         <Route

@@ -1,3 +1,4 @@
+/* src/App.css */
 #root {
   padding: 0;
   text-align: center;
@@ -45,32 +46,25 @@
 
 body {
   margin: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f4f4f4;
-  /* デフォルトの背景色 */
   transition: background-color 0.5s ease-in-out;
-  /* 背景色切り替えをスムーズに */
 }
 
 code {
-  font-family:
-    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
-/* ★変更: .masculine-mode body ではなく、body.masculine-mode に変更 ★ */
 body.masculine-mode {
   background-color: #333;
-  /* 漢モードの背景色 */
   color: #eee;
-  /* 漢モードの文字色 */
 }
 
-/* Appコンポーネント内のラッパーは必要に応じてスタイルを調整 */
 .App {
   min-height: 100vh;
-  /* アプリ全体の最小高さを確保 */
   display: flex;
   flex-direction: column;
 }
