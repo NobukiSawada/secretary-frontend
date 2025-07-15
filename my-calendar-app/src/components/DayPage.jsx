@@ -2,11 +2,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./DayPage.css";
-import apiClient from "../api/apiClient";
-import SuggestionModal from "./SuggestionModal";
+import apiClient from "../api/apiClient"; // APIクライアントをインポート
+import SuggestionModal from "./SuggestionModal"; // SuggestionModal をインポート
 
 const DayPage = () => {
-  const { date } = useParams();
+  const { date } = useParams(); // 'YYYY-MM-DD' 形式
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const eventAreaRef = useRef(null);
@@ -32,8 +32,11 @@ const DayPage = () => {
         setEvents(response.data.map(event => ({
           ...event,
           id: String(event.id),
+          // APIから返される ISO 8601 文字列を HH:mm 形式に変換
           start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
           end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          // AI生成イベントであることを識別するフラグを付与（ページリロードで失われるため注意）
+          is_ai_generated: event.is_ai_generated || false // バックエンドにis_ai_generatedフィールドがあればそれを利用
         })));
       } catch (error) {
         console.error("イベントの取得に失敗しました:", error.response?.data || error.message);
@@ -126,7 +129,6 @@ const DayPage = () => {
     return i === 0 ? '' : `${String(i).padStart(2, "0")}:00`;
   });
 
-  // ドラッグ操作のイベントハンドラ
   const handleMouseDown = (e) => {
     if (e.target !== eventAreaRef.current) return;
     setIsDragging(true);
@@ -161,7 +163,7 @@ const DayPage = () => {
     if (isOverlapping) {
       console.log("選択範囲に既存の予定が含まれています。");
       alert("選択範囲に既存の予定が含まれています。");
-    } else if (endMin - startMin > 1) {
+    } else if (endMin - startMin > 1) { // 1分以上の選択のみ有効
       const formatTime = (totalMinutes) => {
         const hours = Math.floor(totalMinutes / 60);
         const minutes = Math.round(totalMinutes % 60);
@@ -202,9 +204,8 @@ const DayPage = () => {
     setIsDragging(false);
     setDragStartPos(null);
     setDragCurrentPos(null);
-  }; // ★★★ handleMouseUp 関数の閉じ括弧はここにあります ★★★
+  };
 
-  // 選択したプランのイベントをバックエンドに追加する関数
   const handleSelectPlan = async (planEvents) => {
     try {
       for (const event of planEvents) {
@@ -214,11 +215,13 @@ const DayPage = () => {
           end_time: event.end_time,     // ISO 8601 文字列としてそのまま送信
           location: event.location || null,
           description: event.description || null,
+          is_ai_generated: true, // AI生成フラグを付与
         };
-        await apiClient.post('/events/', eventData);
+        await apiClient.post('/events/', eventData); // イベント追加APIを呼び出し
       }
       alert("選択されたプランのイベントを追加しました！");
       setIsModalOpen(false);
+
       // イベント追加後、DayPageのイベントリストを再読み込み
       const startOfDay = `${date}T00:00:00Z`;
       const endOfDay = `${date}T23:59:59Z`;
@@ -228,6 +231,7 @@ const DayPage = () => {
         id: String(event.id),
         start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
         end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        is_ai_generated: event.is_ai_generated || false // APIレスポンスにフラグがない場合
       })));
 
     } catch (error) {
@@ -283,7 +287,7 @@ const DayPage = () => {
             arrangedEvents.map((event) => (
               <div
                 key={event.id}
-                className="event-block"
+                className={`event-block ${event.is_ai_generated ? 'ai-event-block' : ''}`}
                 style={event.style}
                 onClick={() => handleEventClick(event.id)}
               >

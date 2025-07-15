@@ -29,22 +29,24 @@ const MasculineDayPage = () => {
           params: { start: startOfDay, end: endOfDay }
         });
 
-        // ★重要: レスポンスが空の場合も適切に処理し、イベントを空の配列にセットする ★
         setEvents(response.data.map(event => ({
           ...event,
           id: String(event.id),
           start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
           end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+          // AI生成イベントを識別するフラグを付与（ページリロードで失われるため注意）
+          // APIレスポンスに is_ai_generated フィールドがないため、タイトルで一時的に識別
+          is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false
         })));
       } catch (error) {
         console.error("イベントの取得に失敗しました:", error.response?.data || error.message);
-        // alert(`イベントの取得に失敗しました: ${error.response?.data?.detail || error.message}`); // アラートはデバッグ時にのみ表示
-        setEvents([]); // ★重要: エラー時やデータ取得失敗時は必ずイベントを空の配列にリセットする★
+        alert(`イベントの取得に失敗しました: ${error.response?.data?.detail || error.message}`);
+        setEvents([]);
       }
     };
 
     fetchEventsForDay();
-  }, [date]); // date が変更されるたびにイベントを再取得
+  }, [date]);
 
   const PX_PER_HOUR = 60;
   const timeToMinutes = (time) => {
@@ -208,16 +210,19 @@ const MasculineDayPage = () => {
     try {
       for (const event of planEvents) {
         const eventData = {
-          title: event.title,
-          start_time: event.start_time,
-          end_time: event.end_time,
+          title: `AI提案: ${event.title}`, // タイトルにプレフィックスを追加して識別を容易にする
+          start_time: event.start_time, // ISO 8601 文字列としてそのまま送信
+          end_time: event.end_time,     // ISO 8601 文字列としてそのまま送信
           location: event.location || null,
           description: event.description || null,
+          is_ai_generated: true, // AI生成フラグを付与（バックエンドのスキーマにフィールドがない場合、DBには保存されない）
         };
-        await apiClient.post('/events/', eventData);
+        await apiClient.post('/events/', eventData); // イベント追加APIを呼び出し
       }
       alert("選択されたプランのイベントを追加しました！");
       setIsModalOpen(false);
+
+      // イベント追加後、DayPageのイベントリストを再読み込み
       const startOfDay = `${date}T00:00:00Z`;
       const endOfDay = `${date}T23:59:59Z`;
       const response = await apiClient.get('/events/', { params: { start: startOfDay, end: endOfDay } });
@@ -226,6 +231,7 @@ const MasculineDayPage = () => {
         id: String(event.id),
         start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
         end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
+        is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false // APIレスポンスから再識別
       })));
 
     } catch (error) {
@@ -280,7 +286,7 @@ const MasculineDayPage = () => {
             arrangedEvents.map((event) => (
               <div
                 key={event.id}
-                className="masculine-event-block"
+                className={`masculine-event-block ${event.is_ai_generated ? 'ai-event-block' : ''}`}
                 style={event.style}
                 onClick={() => handleEventClick(event.id)}
               >
