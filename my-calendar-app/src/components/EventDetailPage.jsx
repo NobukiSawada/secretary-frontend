@@ -37,13 +37,15 @@ const EventDetailPage = () => {
         try {
           const response = await apiClient.get(`/events/${eventId}`); // GET /events/{event_id}
           const fetchedEvent = response.data;
+          const d = new Date(fetchedEvent.start_time);
+          const localDateString = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
           setEvent({
             ...fetchedEvent,
-            id: String(fetchedEvent.id), // IDを文字列に変換
-            // FastAPIから返される start_time, end_time (ISO文字列) を表示用に変換
+            id: String(fetchedEvent.id),
             start: new Date(fetchedEvent.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
             end: new Date(fetchedEvent.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-            date: new Date(fetchedEvent.start_time).toISOString().split('T')[0], // YYYY-MM-DD形式
+            date: localDateString, // 修正後の日付
           });
           setEditedTitle(fetchedEvent.title);
           setEditedStart(new Date(fetchedEvent.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }));

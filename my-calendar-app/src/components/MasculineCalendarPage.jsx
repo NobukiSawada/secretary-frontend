@@ -16,7 +16,9 @@ const fetchEventsForMonth = async (year, month) => {
 
     const organizedEvents = {};
     response.data.forEach(event => {
-      const eventDate = new Date(event.start_time).toISOString().split('T')[0];
+      const d = new Date(event.start_time);
+      const eventDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
       if (!organizedEvents[eventDate]) {
         organizedEvents[eventDate] = [];
       }
