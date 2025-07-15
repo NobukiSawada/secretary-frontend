@@ -210,19 +210,18 @@ const DayPage = () => {
     try {
       for (const event of planEvents) {
         const eventData = {
-          title: event.title,
-          start_time: event.start_time, // ISO 8601 文字列としてそのまま送信
-          end_time: event.end_time,     // ISO 8601 文字列としてそのまま送信
+          // ★★★ 修正: タイトルに "AI提案: " プレフィックスを付与します ★★★
+          title: `AI提案: ${event.title}`,
+          start_time: event.start_time,
+          end_time: event.end_time,
           location: event.location || null,
           description: event.description || null,
-          is_ai_generated: true, // AI生成フラグを付与
         };
-        await apiClient.post('/events/', eventData); // イベント追加APIを呼び出し
+        await apiClient.post('/events/', eventData);
       }
       alert("選択されたプランのイベントを追加しました！");
       setIsModalOpen(false);
 
-      // イベント追加後、DayPageのイベントリストを再読み込み
       const startOfDay = `${date}T00:00:00Z`;
       const endOfDay = `${date}T23:59:59Z`;
       const response = await apiClient.get('/events/', { params: { start: startOfDay, end: endOfDay } });
@@ -231,7 +230,8 @@ const DayPage = () => {
         id: String(event.id),
         start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
         end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-        is_ai_generated: event.is_ai_generated || false // APIレスポンスにフラグがない場合
+        // APIレスポンスから is_ai_generated フラグを再識別 (タイトルに "AI提案:" があるかで判断)
+        is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false
       })));
 
     } catch (error) {

@@ -210,12 +210,14 @@ const MasculineDayPage = () => {
     try {
       for (const event of planEvents) {
         const eventData = {
-          title: `AI提案: ${event.title}`, // タイトルにプレフィックスを追加して識別を容易にする
-          start_time: event.start_time, // ISO 8601 文字列としてそのまま送信
-          end_time: event.end_time,     // ISO 8601 文字列としてそのまま送信
+          // ★★★ 修正: タイトルに "AI提案: " プレフィックスを付与します ★★★
+          title: `AI提案: ${event.title}`,
+          start_time: event.start_time,
+          end_time: event.end_time,
           location: event.location || null,
           description: event.description || null,
-          is_ai_generated: true, // AI生成フラグを付与（バックエンドのスキーマにフィールドがない場合、DBには保存されない）
+          // is_ai_generated: true はバックエンドスキーマにないため、ここに残してもDB保存には影響しません
+          // そのため、ここでは特に変更せず、タイトルでの識別に頼ります。
         };
         await apiClient.post('/events/', eventData); // イベント追加APIを呼び出し
       }
@@ -231,7 +233,8 @@ const MasculineDayPage = () => {
         id: String(event.id),
         start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
         end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-        is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false // APIレスポンスから再識別
+        // APIレスポンスから is_ai_generated フラグを再識別 (タイトルに "AI提案:" があるかで判断)
+        is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false
       })));
 
     } catch (error) {
