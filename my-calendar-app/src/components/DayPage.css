@@ -15,20 +15,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
-  background-color: #f0f4f8;
-  padding: 12px 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  background-color: #f8f9fa;
+}
+
+.date-navigation {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* ボタンと日付の間のスペース */
 }
 
 .day-page-header h2 {
   margin: 0;
-  color: #2c3e50;
-  font-size: 2em;
-  font-weight: 600;
-  flex-grow: 1;
-  text-align: center;
+  color: #333; /* 文字色を濃い灰色に設定 */
 }
 
 .day-page-header button {

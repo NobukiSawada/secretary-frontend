@@ -2,7 +2,8 @@
 
 @font-face {
   font-family: "TamanegiKaishoGeki";
-  src: url("../assets/玉ねぎ楷書「激」無料版v7/玉ねぎ楷書激無料版v7改.ttf") format("truetype");
+  src: url("../assets/玉ねぎ楷書「激」無料版v7/玉ねぎ楷書激無料版v7改.ttf")
+    format("truetype");
 }
 
 .masculine-day-page-container {
@@ -27,6 +28,12 @@
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   border: 1px solid #444;
+}
+
+.date-navigation {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* ボタンと日付の間のスペース */
 }
 
 .masculine-day-page-header h2 {
