@@ -35,20 +35,14 @@ const MasculineDayPage = () => {
           response.data.map((event) => ({
             ...event,
             id: String(event.id),
-            start: new Date(event.start_time).toLocaleTimeString("ja-JP", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            }),
-            end: new Date(event.end_time).toLocaleTimeString("ja-JP", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            }),
-            // AI生成イベントを識別するフラグを付与（ページリロードで失われるため注意）
-            // APIレスポンスに is_ai_generated フィールドがないため、タイトルで一時的に識別
+            // ★修正: 時刻の表示方法を統一
+            start: event.start_time.substring(11, 16),
+            end: event.end_time.substring(11, 16),
+            // ★修正: AI生成イベントの識別ロジックを堅牢化
             is_ai_generated:
-              event.title && event.title.startsWith("AI提案:") ? true : false,
+              event.is_ai_generated ||
+              (event.title && event.title.startsWith("AI提案:")) ||
+              false,
           })),
         );
       } catch (error) {
@@ -129,6 +123,10 @@ const MasculineDayPage = () => {
       const totalColumns = event.totalColumns || 1;
       const columnWidth = 100 / totalColumns;
       const leftPosition = event.column * columnWidth;
+
+      // ★追加: 短いイベントかどうかを判定
+      const isShort = height < 35;
+
       return {
         ...event,
         style: {
@@ -137,6 +135,7 @@ const MasculineDayPage = () => {
           width: `${columnWidth}%`,
           left: `${leftPosition}%`,
         },
+        isShort, // フラグを渡す
       };
     });
   };
@@ -179,10 +178,8 @@ const MasculineDayPage = () => {
     });
 
     if (isOverlapping) {
-      console.log("選択範囲に既存の予定が含まれています。");
       alert("選択範囲に既存の予定が含まれています。");
     } else if (endMin - startMin > 1) {
-      // 1分以上の選択のみ有効
       const formatTime = (totalMinutes) => {
         const hours = Math.floor(totalMinutes / 60);
         const minutes = Math.round(totalMinutes % 60);
@@ -191,13 +188,16 @@ const MasculineDayPage = () => {
       const startTimeStr = formatTime(startMin);
       const endTimeStr = formatTime(endMin);
 
-      const freeTimeStartISO = `${date}T${startTimeStr}:00Z`;
-      const freeTimeEndISO = `${date}T${endTimeStr}:00Z`;
+      // ★修正: タイムゾーンZを削除
+      const freeTimeStartISO = `${date}T${startTimeStr}:00`;
+      const freeTimeEndISO = `${date}T${endTimeStr}:00`;
 
+      // ★修正: APIリクエストの形式を更新
       const plannerRequestData = {
         free_time_start: freeTimeStartISO,
         free_time_end: freeTimeEndISO,
-        user_preferences: "私は筋トレが大好きで、あなたは私の筋トレパーソナルトレーナーです。何が何でも私に歩かせてください。川を泳ぐこと、山を登ること、海を泳ぐことは厭わないです。",
+        // Masculineバージョン用の特別なリクエスト
+        user_preferences: "ワイルドな、熱い、挑戦的な、アウトドア、体を動かす、男らしい、集中できる体験",
       };
 
       console.log(
@@ -207,8 +207,9 @@ const MasculineDayPage = () => {
 
       setIsLoading(true);
       try {
+        // ★修正: エンドポイントを更新
         const response = await apiClient.post(
-          "/masculine-planner/generate-plans",
+          "/planner/generate-plans-from-free-time",
           plannerRequestData,
         );
         console.log("提案結果:", response.data);
@@ -239,19 +240,21 @@ const MasculineDayPage = () => {
     try {
       for (const event of planEvents) {
         const eventData = {
-          title: `AI提案: ${event.title}`, // タイトルにプレフィックスを追加して識別を容易にする
-          start_time: event.start_time, // ISO 8601 文字列としてそのまま送信
-          end_time: event.end_time, // ISO 8601 文字列としてそのまま送信
+          // ★修正: タイトルの重複チェックを追加
+          title: event.title.startsWith("AI提案:")
+            ? event.title
+            : `AI提案: ${event.title}`,
+          start_time: event.start_time,
+          end_time: event.end_time,
           location: event.location || null,
           description: event.description || null,
-          is_ai_generated: true, // AI生成フラグを付与（バックエンドのスキーマにフィールドがない場合、DBには保存されない）
+          is_ai_generated: true,
         };
-        await apiClient.post("/events/", eventData); // イベント追加APIを呼び出し
+        await apiClient.post("/events/", eventData);
       }
       alert("選択されたプランのイベントを追加しました！");
       setIsModalOpen(false);
 
-      // イベント追加後、DayPageのイベントリストを再読み込み
       const startOfDay = `${date}T00:00:00Z`;
       const endOfDay = `${date}T23:59:59Z`;
       const response = await apiClient.get("/events/", {
@@ -261,18 +264,12 @@ const MasculineDayPage = () => {
         response.data.map((event) => ({
           ...event,
           id: String(event.id),
-          start: new Date(event.start_time).toLocaleTimeString("ja-JP", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          }),
-          end: new Date(event.end_time).toLocaleTimeString("ja-JP", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          }),
+          start: event.start_time.substring(11, 16),
+          end: event.end_time.substring(11, 16),
           is_ai_generated:
-            event.title && event.title.startsWith("AI提案:") ? true : false, // APIレスポンスから再識別
+            event.is_ai_generated ||
+            (event.title && event.title.startsWith("AI提案:")) ||
+            false,
         })),
       );
     } catch (error) {
@@ -299,7 +296,6 @@ const MasculineDayPage = () => {
   const handleEventClick = (eventId) => navigate(`/event/${eventId}`);
   const handleAddEventClick = () => navigate(`/event/new?date=${date}`);
 
-  // 日付を "YYYY/M/D (曜)" 形式にフォーマットする
   const formatDateWithDay = (dateString) => {
     const dateObj = new Date(dateString + "T00:00:00");
     const year = dateObj.getFullYear();
@@ -311,12 +307,11 @@ const MasculineDayPage = () => {
     return `${year}/${month}/${day} (${dayOfWeek})`;
   };
 
-  // 前後日に移動する関数
   const changeDay = (offset) => {
     const currentDate = new Date(date);
     currentDate.setDate(currentDate.getDate() + offset);
     const nextDate = currentDate.toISOString().split("T")[0];
-    navigate(`/day/${nextDate}`);
+    navigate(`/masculine-day/${nextDate}`); // ★注意: URLをMasculine用に
   };
 
   return (
@@ -372,14 +367,18 @@ const MasculineDayPage = () => {
             arrangedEvents.map((event) => (
               <div
                 key={event.id}
-                className={`masculine-event-block ${event.is_ai_generated ? "ai-event-block" : ""}`}
+                // ★追加: 短いイベント用のクラスを動的に適用
+                className={`masculine-event-block ${event.is_ai_generated ? "ai-event-block" : ""} ${event.isShort ? "short-event" : ""}`}
                 style={event.style}
                 onClick={() => handleEventClick(event.id)}
               >
                 <div className="masculine-event-title">{event.title}</div>
-                <div className="masculine-event-time">
-                  {event.start} - {event.end}
-                </div>
+                {/* ★追加: 短いイベントでは時間を非表示に */}
+                {!event.isShort && (
+                  <div className="masculine-event-time">
+                    {event.start} - {event.end}
+                  </div>
+                )}
               </div>
             ))
           )}
