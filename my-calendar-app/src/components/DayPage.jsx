@@ -6,7 +6,6 @@ import "./DayPage.css";
 import apiClient from "../api/apiClient";
 import SuggestionModal from "./SuggestionModal";
 
-
 const DayPage = () => {
   const { date } = useParams();
   const navigate = useNavigate();
@@ -27,22 +26,37 @@ const DayPage = () => {
         const startOfDay = `${date}T00:00:00Z`;
         const endOfDay = `${date}T23:59:59Z`;
 
-        const response = await apiClient.get('/events/', {
-          params: { start: startOfDay, end: endOfDay }
+        const response = await apiClient.get("/events/", {
+          params: { start: startOfDay, end: endOfDay },
         });
 
-        setEvents(response.data.map(event => ({
-          ...event,
-          id: String(event.id),
+        setEvents(
+          response.data.map((event) => ({
+            ...event,
+            id: String(event.id),
 
-          start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false // AI生成フラグを付与（タイトルで識別）
-
-        })));
+            start: new Date(event.start_time).toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }),
+            end: new Date(event.end_time).toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            }),
+            is_ai_generated:
+              event.title && event.title.startsWith("AI提案:") ? true : false, // AI生成フラグを付与（タイトルで識別）
+          })),
+        );
       } catch (error) {
-        console.error("イベントの取得に失敗しました:", error.response?.data || error.message);
-        alert(`イベントの取得に失敗しました: ${error.response?.data?.detail || error.message}`);
+        console.error(
+          "イベントの取得に失敗しました:",
+          error.response?.data || error.message,
+        );
+        alert(
+          `イベントの取得に失敗しました: ${error.response?.data?.detail || error.message}`,
+        );
         setEvents([]);
       }
     };
@@ -128,7 +142,7 @@ const DayPage = () => {
   const arrangedEvents = calculateEventLayout(events);
 
   const timeSlotsLabels = Array.from({ length: 24 }, (_, i) => {
-    return i === 0 ? '' : `${String(i).padStart(2, "0")}:00`;
+    return i === 0 ? "" : `${String(i).padStart(2, "0")}:00`;
   });
 
   const handleMouseDown = (e) => {
@@ -165,7 +179,8 @@ const DayPage = () => {
     if (isOverlapping) {
       console.log("選択範囲に既存の予定が含まれています。");
       alert("選択範囲に既存の予定が含まれています。");
-    } else if (endMin - startMin > 1) { // 1分以上の選択のみ有効
+    } else if (endMin - startMin > 1) {
+      // 1分以上の選択のみ有効
       const formatTime = (totalMinutes) => {
         const hours = Math.floor(totalMinutes / 60);
         const minutes = Math.round(totalMinutes % 60);
@@ -185,10 +200,16 @@ const DayPage = () => {
         user_preferences: "短時間で楽しめること",
       };
 
-      console.log("送信するプランナーリクエスト:", JSON.stringify(plannerRequestData, null, 2));
+      console.log(
+        "送信するプランナーリクエスト:",
+        JSON.stringify(plannerRequestData, null, 2),
+      );
 
       try {
-        const response = await apiClient.post('/planner/generate-plans', plannerRequestData);
+        const response = await apiClient.post(
+          "/planner/generate-plans",
+          plannerRequestData,
+        );
         console.log("提案結果:", response.data);
         if (response.data.plans && response.data.plans.length > 0) {
           setSuggestedPlans(response.data.plans);
@@ -197,7 +218,10 @@ const DayPage = () => {
           alert("提案が見つかりませんでした。");
         }
       } catch (error) {
-        console.error("提案の取得に失敗しました:", error.response?.data || error.message);
+        console.error(
+          "提案の取得に失敗しました:",
+          error.response?.data || error.message,
+        );
         const errorMessage = error.response?.data?.detail || error.message;
         alert(`提案の取得に失敗しました: ${JSON.stringify(errorMessage)}`);
       }
@@ -212,16 +236,14 @@ const DayPage = () => {
     try {
       for (const event of planEvents) {
         const eventData = {
-
           title: `AI提案: ${event.title}`, // タイトルにプレフィックスを追加して識別を容易にする
           start_time: event.start_time,
           end_time: event.end_time,
           location: event.location || null,
           description: event.description || null,
           is_ai_generated: true, // AI生成フラグを付与（バックエンドのスキーマにフィールドがない場合、DBには保存されない）
-
         };
-        await apiClient.post('/events/', eventData); // イベント追加APIを呼び出し
+        await apiClient.post("/events/", eventData); // イベント追加APIを呼び出し
       }
       alert("選択されたプランのイベントを追加しました！");
       setIsModalOpen(false);
@@ -229,19 +251,35 @@ const DayPage = () => {
       // イベント追加後、DayPageのイベントリストを再読み込み
       const startOfDay = `${date}T00:00:00Z`;
       const endOfDay = `${date}T23:59:59Z`;
-      const response = await apiClient.get('/events/', { params: { start: startOfDay, end: endOfDay } });
-      setEvents(response.data.map(event => ({
-        ...event,
-        id: String(event.id),
-        start: new Date(event.start_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-        end: new Date(event.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }),
-        is_ai_generated: event.title && event.title.startsWith('AI提案:') ? true : false // APIレスポンスから再識別
-
-      })));
-
+      const response = await apiClient.get("/events/", {
+        params: { start: startOfDay, end: endOfDay },
+      });
+      setEvents(
+        response.data.map((event) => ({
+          ...event,
+          id: String(event.id),
+          start: new Date(event.start_time).toLocaleTimeString("ja-JP", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }),
+          end: new Date(event.end_time).toLocaleTimeString("ja-JP", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }),
+          is_ai_generated:
+            event.title && event.title.startsWith("AI提案:") ? true : false, // APIレスポンスから再識別
+        })),
+      );
     } catch (error) {
-      console.error("プランの追加に失敗しました:", error.response?.data || error.message);
-      alert(`プランの追加に失敗しました: ${error.response?.data?.detail || error.message}`);
+      console.error(
+        "プランの追加に失敗しました:",
+        error.response?.data || error.message,
+      );
+      alert(
+        `プランの追加に失敗しました: ${error.response?.data?.detail || error.message}`,
+      );
     }
   };
 
@@ -258,20 +296,51 @@ const DayPage = () => {
   const handleEventClick = (eventId) => navigate(`/event/${eventId}`);
   const handleAddEventClick = () => navigate(`/event/new?date=${date}`);
 
+  // 日付を "YYYY/M/D (曜)" 形式にフォーマットする
+  const formatDateWithDay = (dateString) => {
+    const dateObj = new Date(dateString + "T00:00:00");
+    const year = dateObj.getFullYear();
+    const month = dateObj.getMonth() + 1;
+    const day = dateObj.getDate();
+    const dayOfWeek = ["日", "月", "火", "水", "木", "金", "土"][
+      dateObj.getDay()
+    ];
+    return `${year}/${month}/${day} (${dayOfWeek})`;
+  };
+
+  // 前後日に移動する関数
+  const changeDay = (offset) => {
+    const currentDate = new Date(date);
+    currentDate.setDate(currentDate.getDate() + offset);
+    const nextDate = currentDate.toISOString().split("T")[0];
+    navigate(`/day/${nextDate}`);
+  };
+
   return (
     <div className="day-page-container">
       <div className="day-page-header">
-        <button onClick={() => navigate(-1)}>&lt; カレンダーに戻る</button>
-        <h2>{date} の予定</h2>
-        <button onClick={handleAddEventClick} className="add-event-button">
-          予定を追加
-        </button>
+        <div className="header-left">
+          <button onClick={() => navigate("/")}>カレンダーに戻る</button>
+        </div>
+        <div className="header-center">
+          <button onClick={() => changeDay(-1)}>&lt; 前の日</button>
+          <h2>{formatDateWithDay(date)}</h2>
+          <button onClick={() => changeDay(1)}>次の日 &gt;</button>
+        </div>
+        <div className="header-right">
+          <button onClick={handleAddEventClick} className="add-event-button">
+            予定を追加
+          </button>
+        </div>
       </div>
 
       <div className="day-view-grid">
         <div className="time-axis">
           {timeSlotsLabels.map((time, index) => (
-            <div key={index} className={`time-slot-label ${index === 0 ? 'hour-label-zero' : ''}`}>
+            <div
+              key={index}
+              className={`time-slot-label ${index === 0 ? "hour-label-zero" : ""}`}
+            >
               {time}
             </div>
           ))}
@@ -292,7 +361,7 @@ const DayPage = () => {
             arrangedEvents.map((event) => (
               <div
                 key={event.id}
-                className={`event-block ${event.is_ai_generated ? 'ai-event-block' : ''}`}
+                className={`event-block ${event.is_ai_generated ? "ai-event-block" : ""}`}
                 style={event.style}
                 onClick={() => handleEventClick(event.id)}
               >
@@ -303,13 +372,18 @@ const DayPage = () => {
               </div>
             ))
           )}
-          {timeSlotsLabels.map((_, index) => ( // 区切り線も timeSlotsLabels を使用
-            <div
-              key={`line-${index}`}
-              className="hour-line"
-              style={{ top: `${index * PX_PER_HOUR}px` }}
-            ></div>
-          ))}
+          {timeSlotsLabels.map(
+            (
+              _,
+              index, // 区切り線も timeSlotsLabels を使用
+            ) => (
+              <div
+                key={`line-${index}`}
+                className="hour-line"
+                style={{ top: `${index * PX_PER_HOUR}px` }}
+              ></div>
+            ),
+          )}
         </div>
       </div>
 

@@ -25,10 +25,10 @@ function App() {
 
   const toggleMasculineMode = (targetMode) => {
     // 現在のモードと異なる場合のみ遷移をトリガー
-    if (targetMode === 'masculine' && !masculineMode) {
-      navigate('/loading?to=/masculine-calendar');
-    } else if (targetMode === 'gentle' && masculineMode) {
-      navigate('/loading?to=/');
+    if (targetMode === "masculine" && !masculineMode) {
+      navigate("/loading?to=/masculine-calendar");
+    } else if (targetMode === "gentle" && masculineMode) {
+      navigate("/loading?to=/");
     }
   };
 
@@ -36,16 +36,16 @@ function App() {
   useEffect(() => {
     if (document.body) {
       if (masculineMode) {
-        document.body.classList.add('masculine-mode');
+        document.body.classList.add("masculine-mode");
       } else {
-        document.body.classList.remove('masculine-mode');
+        document.body.classList.remove("masculine-mode");
       }
     }
 
     const currentPath = window.location.pathname;
-    if (currentPath === '/masculine-calendar' && !masculineMode) {
+    if (currentPath === "/masculine-calendar" && !masculineMode) {
       setMasculineMode(true);
-    } else if (currentPath === '/' && masculineMode) {
+    } else if (currentPath === "/" && masculineMode) {
       setMasculineMode(false);
     }
   }, [masculineMode, window.location.pathname]);
@@ -53,12 +53,16 @@ function App() {
   return (
     // <Router> は main.jsx に移動したため、ここでは削除し、直下に <div> を配置
     <div className="App">
-      <Routes> {/* Routes は App の中で使えます */}
+      <Routes>
+        {" "}
+        {/* Routes は App の中で使えます */}
         <Route
           path="/"
           element={
             isLoggedIn ? (
-              <CalendarPage onToggleMode={() => toggleMasculineMode('masculine')} />
+              <CalendarPage
+                onToggleMode={() => toggleMasculineMode("masculine")}
+              />
             ) : (
               <LoginPage onLoginSuccess={handleLoginSuccess} />
             )
@@ -66,7 +70,11 @@ function App() {
         />
         <Route
           path="/masculine-calendar"
-          element={<MasculineCalendarPage onToggleMode={() => toggleMasculineMode('gentle')} />}
+          element={
+            <MasculineCalendarPage
+              onToggleMode={() => toggleMasculineMode("gentle")}
+            />
+          }
         />
         <Route path="/loading" element={<LoadingAnimationPage />} />
         <Route
