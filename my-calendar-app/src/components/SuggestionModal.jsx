@@ -32,7 +32,8 @@ const SuggestionModal = ({
                     <div key={eventIndex} className="plan-event-item">
                       <strong>{event.title}</strong>
                       <p>
-                        {event.start_time.substring(11, 16)} - {event.end_time.substring(11, 16)}
+                        {event.start_time.substring(11, 16)} -{" "}
+                        {event.end_time.substring(11, 16)}
                       </p>
                       {event.location && <p>場所: {event.location}</p>}
                       {event.description && <p>{event.description}</p>}
