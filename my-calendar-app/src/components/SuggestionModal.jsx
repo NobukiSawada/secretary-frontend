@@ -32,15 +32,7 @@ const SuggestionModal = ({
                     <div key={eventIndex} className="plan-event-item">
                       <strong>{event.title}</strong>
                       <p>
-                        {new Date(event.start_time).toLocaleTimeString(
-                          "ja-JP",
-                          { hour: "2-digit", minute: "2-digit" },
-                        )}{" "}
-                        -{" "}
-                        {new Date(event.end_time).toLocaleTimeString("ja-JP", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {event.start_time.substring(11, 16)} - {event.end_time.substring(11, 16)}
                       </p>
                       {event.location && <p>場所: {event.location}</p>}
                       {event.description && <p>{event.description}</p>}

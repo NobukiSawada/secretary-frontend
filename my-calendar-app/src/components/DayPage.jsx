@@ -37,16 +37,8 @@ const DayPage = () => {
             ...event,
             id: String(event.id),
             // APIから返される ISO 8601 文字列を HH:mm 形式に変換
-            start: new Date(event.start_time).toLocaleTimeString("ja-JP", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            }),
-            end: new Date(event.end_time).toLocaleTimeString("ja-JP", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            }),
+            start: event.start_time.substring(11, 16),
+            end: event.end_time.substring(11, 16),
             // AI生成イベントであることを識別するフラグを付与
             is_ai_generated:
               event.is_ai_generated ||
@@ -194,8 +186,8 @@ const DayPage = () => {
       const startTimeStr = formatTime(startMin);
       const endTimeStr = formatTime(endMin);
 
-      const freeTimeStartISO = `${date}T${startTimeStr}:00Z`;
-      const freeTimeEndISO = `${date}T${endTimeStr}:00Z`;
+      const freeTimeStartISO = `${date}T${startTimeStr}:00`;
+      const freeTimeEndISO = `${date}T${endTimeStr}:00`;
 
       const plannerRequestData = {
         // prev_event_location: "出発地",
@@ -271,16 +263,8 @@ const DayPage = () => {
         response.data.map((event) => ({
           ...event,
           id: String(event.id),
-          start: new Date(event.start_time).toLocaleTimeString("ja-JP", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          }),
-          end: new Date(event.end_time).toLocaleTimeString("ja-JP", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          }),
+          start: event.start_time.substring(11, 16),
+          end: event.end_time.substring(11, 16),
           is_ai_generated:
             event.is_ai_generated ||
             (event.title && event.title.startsWith("AI提案:")) ||
