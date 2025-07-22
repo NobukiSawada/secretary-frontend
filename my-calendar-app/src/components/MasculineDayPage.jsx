@@ -209,7 +209,7 @@ const MasculineDayPage = () => {
       try {
         // ★修正: エンドポイントを更新
         const response = await apiClient.post(
-          "/planner/generate-plans-from-free-time",
+          "/masculine-planner/generate-plans",
           plannerRequestData,
         );
         console.log("提案結果:", response.data);
