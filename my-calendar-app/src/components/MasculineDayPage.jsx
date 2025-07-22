@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./MasculineDayPage.css";
 import apiClient from "../api/apiClient";
 import SuggestionModal from "./SuggestionModal";
+import MasculineLoadingModal from "./MasculineLoadingModal";
 
 const MasculineDayPage = () => {
   const { date } = useParams();
@@ -17,6 +18,7 @@ const MasculineDayPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [suggestedPlans, setSuggestedPlans] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // イベントデータの取得
   useEffect(() => {
@@ -205,6 +207,7 @@ const MasculineDayPage = () => {
         JSON.stringify(plannerRequestData, null, 2),
       );
 
+      setIsLoading(true);
       try {
         const response = await apiClient.post(
           "/planner/generate-plans",
@@ -224,6 +227,8 @@ const MasculineDayPage = () => {
         );
         const errorMessage = error.response?.data?.detail || error.message;
         alert(`提案の取得に失敗しました: ${JSON.stringify(errorMessage)}`);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -318,6 +323,7 @@ const MasculineDayPage = () => {
 
   return (
     <div className="masculine-day-page-container">
+      <MasculineLoadingModal isOpen={isLoading} />
       <div className="masculine-day-page-header">
         <div className="header-left">
           <button onClick={() => navigate("/masculine-calendar")}>
@@ -394,6 +400,7 @@ const MasculineDayPage = () => {
         onClose={() => setIsModalOpen(false)}
         suggestions={suggestedPlans}
         onSelectPlan={handleSelectPlan}
+        mode="masculine"
       />
     </div>
   );
