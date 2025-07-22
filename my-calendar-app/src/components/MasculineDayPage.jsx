@@ -197,7 +197,7 @@ const MasculineDayPage = () => {
       const plannerRequestData = {
         free_time_start: freeTimeStartISO,
         free_time_end: freeTimeEndISO,
-        user_preferences: "",
+        user_preferences: "私は筋トレが大好きで、あなたは私の筋トレパーソナルトレーナーです。何が何でも私に歩かせてください。川を泳ぐこと、山を登ること、海を泳ぐことは厭わないです。",
       };
 
       console.log(
@@ -208,7 +208,7 @@ const MasculineDayPage = () => {
       setIsLoading(true);
       try {
         const response = await apiClient.post(
-          "/planner/generate-plans",
+          "/masculine-planner/generate-plans",
           plannerRequestData,
         );
         console.log("提案結果:", response.data);
