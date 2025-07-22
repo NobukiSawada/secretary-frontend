@@ -42,8 +42,8 @@
 
 .day-page-header h2 {
   margin: 0;
-  color: #2c3e50; /* 文字色を濃くしてはっきりさせる */
-  font-size: 1.8em; /* 少し小さくしてバランスをとる */
+  color: #2c3e50;
+  font-size: 1.8em;
   font-weight: 600;
 }
 
@@ -58,7 +58,7 @@
   transition:
     background-color 0.3s ease,
     transform 0.2s ease;
-  min-width: 100px; /* ボタンの最小幅を調整 */
+  min-width: 100px;
 }
 
 .day-page-header button:hover {
@@ -88,26 +88,22 @@
   border-right: 1px solid #eee;
   background-color: #f8f9fa;
   padding-top: 0;
-  /* 0:00 の線とラベルの位置関係を正確にする */
 }
 
 .time-slot-label {
   height: 60px;
   display: flex;
   align-items: flex-start;
-  /* 上端揃え */
   justify-content: center;
   font-size: 0.9em;
   color: #555;
   padding-top: 0;
   position: relative;
   top: -8px;
-  /* 負の値で上にずらす。これで時間線に合わせる。値は微調整 */
 }
 
 .time-slot-label.hour-label-zero {
   visibility: hidden;
-  /* 00:00 ラベルを非表示 */
 }
 
 .hour-line {
@@ -116,10 +112,6 @@
   right: 0;
   border-top: 1px dashed #eee;
   z-index: 0;
-}
-
-.hour-line:first-child {
-  /* border-top: none; この行を削除し、0:00 の線も表示する */
 }
 
 .event-area {
@@ -148,34 +140,51 @@
   border-left: 5px solid #3498db;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  /* デフォルトは上寄せ */
   gap: 3px;
+  /* ★★★ ここから修正 ★★★ */
+  min-height: 25px;
+  /* 最低でも25pxの高さを確保 */
+  box-sizing: border-box;
+  /* paddingとborderを高さに含める */
+  /* ★★★ 修正ここまで ★★★ */
 }
 
-/* ★変更: AI生成イベントのスタイルを緑系に ★ */
+/* ★★★ ここから新規追加 ★★★ */
+/* 短いイベント用の特別スタイル */
+.event-block.short-event {
+  justify-content: center;
+  /* 内容を垂直方向に中央揃え */
+}
+
+.event-block.short-event .event-title {
+  font-weight: normal;
+  /* 通常の太さにする */
+  font-size: 0.85em;
+  /* フォントを少し小さくして収まりやすくする */
+}
+
+/* ★★★ 新規追加ここまで ★★★ */
+
+
 .event-block.ai-event-block {
   background-color: #28a745;
-  /* 緑系 */
   border-left: 5px solid #218838;
-  /* より濃い緑のアクセント */
 }
 
 .event-block.ai-event-block:hover {
   background-color: #218838;
   border-color: #1e7e34;
   box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
-  /* 緑系の影 */
 }
 
-/* AI生成イベントのタイトルや時刻の文字色も調整 */
 .event-block.ai-event-block .event-title {
   color: #fff;
-  /* 白い文字 */
 }
 
 .event-block.ai-event-block .event-time {
   color: #d4edda;
-  /* 薄い緑色の文字 */
 }
 
 .event-block:hover {

@@ -36,10 +36,8 @@ const DayPage = () => {
           response.data.map((event) => ({
             ...event,
             id: String(event.id),
-            // APIから返される ISO 8601 文字列を HH:mm 形式に変換
             start: event.start_time.substring(11, 16),
             end: event.end_time.substring(11, 16),
-            // AI生成イベントであることを識別するフラグを付与
             is_ai_generated:
               event.is_ai_generated ||
               (event.title && event.title.startsWith("AI提案:")) ||
@@ -124,6 +122,12 @@ const DayPage = () => {
       const totalColumns = event.totalColumns || 1;
       const columnWidth = 100 / totalColumns;
       const leftPosition = event.column * columnWidth;
+
+      // ★★★ ここから修正 ★★★
+      // イベントの高さが35px未満（35分未満）の場合にフラグを立てる
+      const isShort = height < 35;
+      // ★★★ 修正ここまで ★★★
+
       return {
         ...event,
         style: {
@@ -132,6 +136,7 @@ const DayPage = () => {
           width: `${columnWidth}%`,
           left: `${leftPosition}%`,
         },
+        isShort, // isShort フラグをコンポーネントに渡す
       };
     });
   };
@@ -177,7 +182,6 @@ const DayPage = () => {
       console.log("選択範囲に既存の予定が含まれています。");
       alert("選択範囲に既存の予定が含まれています。");
     } else if (endMin - startMin > 1) {
-      // 1分以上の選択のみ有効
       const formatTime = (totalMinutes) => {
         const hours = Math.floor(totalMinutes / 60);
         const minutes = Math.round(totalMinutes % 60);
@@ -190,11 +194,6 @@ const DayPage = () => {
       const freeTimeEndISO = `${date}T${endTimeStr}:00`;
 
       const plannerRequestData = {
-        // prev_event_location: "出発地",
-        // next_event_location: "目的地",
-        // prev_event_end_time: freeTimeStartISO,
-        // next_event_start_time: freeTimeEndISO,
-        // user_preferences: "短時間で楽しめること",
         free_time_start: freeTimeStartISO,
         free_time_end: freeTimeEndISO,
         user_preferences: "歩くのは面倒臭い",
@@ -241,19 +240,18 @@ const DayPage = () => {
         const eventData = {
           title: event.title.startsWith("AI提案:")
             ? event.title
-            : `AI提案: ${event.title}`, // タイトルにプレフィックスを追加（重複回避）
-          start_time: event.start_time, // ISO 8601 文字列としてそのまま送信
-          end_time: event.end_time, // ISO 8601 文字列としてそのまま送信
+            : `AI提案: ${event.title}`,
+          start_time: event.start_time,
+          end_time: event.end_time,
           location: event.location || null,
           description: event.description || null,
-          is_ai_generated: true, // AI生成フラグを付与
+          is_ai_generated: true,
         };
-        await apiClient.post("/events/", eventData); // イベント追加APIを呼び出し
+        await apiClient.post("/events/", eventData);
       }
       alert("選択されたプランのイベントを追加しました！");
       setIsModalOpen(false);
 
-      // イベント追加後、DayPageのイベントリストを再読み込み
       const startOfDay = `${date}T00:00:00Z`;
       const endOfDay = `${date}T23:59:59Z`;
       const response = await apiClient.get("/events/", {
@@ -295,7 +293,6 @@ const DayPage = () => {
   const handleEventClick = (eventId) => navigate(`/event/${eventId}`);
   const handleAddEventClick = () => navigate(`/event/new?date=${date}`);
 
-  // 日付を "YYYY/M/D (曜)" 形式にフォーマットする
   const formatDateWithDay = (dateString) => {
     const dateObj = new Date(dateString + "T00:00:00");
     const year = dateObj.getFullYear();
@@ -307,7 +304,6 @@ const DayPage = () => {
     return `${year}/${month}/${day} (${dayOfWeek})`;
   };
 
-  // 前後日に移動する関数
   const changeDay = (offset) => {
     const currentDate = new Date(date);
     currentDate.setDate(currentDate.getDate() + offset);
@@ -351,7 +347,7 @@ const DayPage = () => {
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp} // エリア外に出たらドラッグ終了
+          onMouseLeave={handleMouseUp}
         >
           <div className="selection-box" style={getSelectionBoxStyle()}></div>
 
@@ -361,21 +357,29 @@ const DayPage = () => {
             arrangedEvents.map((event) => (
               <div
                 key={event.id}
-                className={`event-block ${event.is_ai_generated ? "ai-event-block" : ""}`}
+                // ★★★ ここから修正 ★★★
+                // isShort フラグに基づいて 'short-event' クラスを動的に追加
+                className={`event-block ${event.is_ai_generated ? "ai-event-block" : ""} ${event.isShort ? "short-event" : ""}`}
+                // ★★★ 修正ここまで ★★★
                 style={event.style}
                 onClick={() => handleEventClick(event.id)}
               >
                 <div className="event-title">{event.title}</div>
-                <div className="event-time">
-                  {event.start} - {event.end}
-                </div>
+                {/* ★★★ ここから修正 ★★★ */}
+                {/* isShortがtrueの場合、時間は表示しない */}
+                {!event.isShort && (
+                  <div className="event-time">
+                    {event.start} - {event.end}
+                  </div>
+                )}
+                {/* ★★★ 修正ここまで ★★★ */}
               </div>
             ))
           )}
           {timeSlotsLabels.map(
             (
               _,
-              index, // 区切り線も timeSlotsLabels を使用
+              index,
             ) => (
               <div
                 key={`line-${index}`}
