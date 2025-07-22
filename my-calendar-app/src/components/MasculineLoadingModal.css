@@ -1,0 +1,43 @@
+/* src/components/MasculineLoadingModal.css */
+.masculine-loading-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.masculine-loading-modal-content {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  padding: 30px 50px;
+  border-radius: 0;
+  border: 2px solid #ff0000;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+  font-family: "玉ねぎ楷書「激」無料版v7", serif;
+}
+
+.masculine-loading-spinner {
+  border: 4px solid #333;
+  border-top: 4px solid #ff0000;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1.5s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

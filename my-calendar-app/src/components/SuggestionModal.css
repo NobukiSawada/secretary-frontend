@@ -138,3 +138,51 @@
     /* 幅いっぱい */
   }
 }
+
+/* Masculine Mode Styles */
+.modal-content.masculine-mode {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  border: 2px solid #ff0000;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+  font-family: "玉ねぎ楷書「激」無料版v7", serif;
+}
+
+.masculine-mode .modal-close-button {
+  color: #ff0000;
+}
+
+.masculine-mode h2 {
+  color: #ff0000;
+  border-bottom-color: #550000;
+}
+
+.masculine-mode .suggestion-card {
+  background: #333333;
+  border: 1px solid #ff0000;
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.2);
+}
+
+.masculine-mode .suggestion-card h3 {
+  color: #ff6666;
+  border-bottom-color: #660000;
+}
+
+.masculine-mode .plan-event-item {
+  background: #440000;
+  border-left: 4px solid #ff0000;
+}
+
+.masculine-mode .plan-event-item p,
+.masculine-mode .plan-event-item strong {
+  color: #e0e0e0;
+}
+
+.masculine-mode .select-plan-button {
+  background-color: #ff0000;
+  color: white;
+}
+
+.masculine-mode .select-plan-button:hover {
+  background-color: #cc0000;
+}

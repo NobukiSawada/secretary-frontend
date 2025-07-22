@@ -2,12 +2,20 @@
 import React from "react";
 import "./SuggestionModal.css";
 
-const SuggestionModal = ({ isOpen, onClose, suggestions, onSelectPlan }) => {
+const SuggestionModal = ({
+  isOpen,
+  onClose,
+  suggestions,
+  onSelectPlan,
+  mode,
+}) => {
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div
+        className={`modal-content ${mode === "masculine" ? "masculine-mode" : ""}`}
+      >
         <button className="modal-close-button" onClick={onClose}>
           &times;
         </button>

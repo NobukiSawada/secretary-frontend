@@ -5,6 +5,7 @@ import "./DayPage.css";
 
 import apiClient from "../api/apiClient";
 import SuggestionModal from "./SuggestionModal";
+import GentleLoadingModal from "./GentleLoadingModal";
 
 const DayPage = () => {
   const { date } = useParams();
@@ -18,6 +19,7 @@ const DayPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [suggestedPlans, setSuggestedPlans] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // イベントデータの取得
   useEffect(() => {
@@ -205,6 +207,7 @@ const DayPage = () => {
         JSON.stringify(plannerRequestData, null, 2),
       );
 
+      setIsLoading(true);
       try {
         const response = await apiClient.post(
           "/planner/generate-plans",
@@ -224,6 +227,8 @@ const DayPage = () => {
         );
         const errorMessage = error.response?.data?.detail || error.message;
         alert(`提案の取得に失敗しました: ${JSON.stringify(errorMessage)}`);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -318,6 +323,7 @@ const DayPage = () => {
 
   return (
     <div className="day-page-container">
+      <GentleLoadingModal isOpen={isLoading} />
       <div className="day-page-header">
         <div className="header-left">
           <button onClick={() => navigate("/")}>カレンダーに戻る</button>
@@ -392,6 +398,7 @@ const DayPage = () => {
         onClose={() => setIsModalOpen(false)}
         suggestions={suggestedPlans}
         onSelectPlan={handleSelectPlan}
+        mode="gentle"
       />
     </div>
   );
