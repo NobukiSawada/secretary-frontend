@@ -12,15 +12,15 @@ const fetchEventsForMonth = async (year, month) => {
     // 次の月の0日目 = 現在の月の最終日
     const endOfMonth = `${year}-${String(month + 2).padStart(2, "0")}-01T00:00:00Z`;
 
-    const response = await apiClient.get('/events/', {
-      params: { start: startOfMonth, end: endOfMonth }
+    const response = await apiClient.get("/events/", {
+      params: { start: startOfMonth, end: endOfMonth },
     });
 
     // 日付 (YYYY-MM-DD) をキーとしたオブジェクトに変換
     const organizedEvents = {};
-    response.data.forEach(event => {
+    response.data.forEach((event) => {
       const d = new Date(event.start_time);
-      const eventDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const eventDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
       if (!organizedEvents[eventDate]) {
         organizedEvents[eventDate] = [];
       }
@@ -28,12 +28,15 @@ const fetchEventsForMonth = async (year, month) => {
         id: String(event.id), // IDを文字列に変換
         title: event.title,
         start: event.start_time, // ここではISO文字列のまま保持
-        end: event.end_time,     // ここではISO文字列のまま保持
+        end: event.end_time, // ここではISO文字列のまま保持
       });
     });
     return organizedEvents;
   } catch (error) {
-    console.error("イベントの取得に失敗しました:", error.response?.data || error.message);
+    console.error(
+      "イベントの取得に失敗しました:",
+      error.response?.data || error.message,
+    );
     return {}; // エラー発生時は空のオブジェクトを返す
   }
 };
@@ -56,8 +59,18 @@ const CalendarPage = ({ onToggleMode }) => {
   }, [year, month]); // year または month が変更されたら再取得
 
   const monthNames = [
-    "1月", "2月", "3月", "4月", "5月", "6月",
-    "7月", "8月", "9月", "10月", "11月", "12月",
+    "1月",
+    "2月",
+    "3月",
+    "4月",
+    "5月",
+    "6月",
+    "7月",
+    "8月",
+    "9月",
+    "10月",
+    "11月",
+    "12月",
   ];
   const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -164,12 +177,18 @@ const CalendarPage = ({ onToggleMode }) => {
             className={`day-cell ${day.isCurrentMonth ? "current-month" : "other-month"} ${day.isToday ? "today" : ""}`}
           >
             <div className="day-number">{day.date}</div> {/* 日付の数字 */}
-            <div className="events-on-day"> {/* その日のイベントを表示するコンテナ */}
-              {day.events.slice(0, 2).map(event => ( // 最初の2つだけ表示 (Overflow対策)
-                <div key={event.id} className="event-on-day-item">
-                  {event.title}
-                </div>
-              ))}
+            <div className="events-on-day">
+              {" "}
+              {/* その日のイベントを表示するコンテナ */}
+              {day.events.slice(0, 2).map(
+                (
+                  event, // 最初の2つだけ表示 (Overflow対策)
+                ) => (
+                  <div key={event.id} className="event-on-day-item">
+                    {event.title}
+                  </div>
+                ),
+              )}
               {day.events.length > 2 && ( // 3つ以上ある場合は「...」を表示
                 <div className="event-on-day-more">...</div>
               )}

@@ -2,7 +2,8 @@
 
 @font-face {
   font-family: "TamanegiKaishoGeki";
-  src: url("../assets/玉ねぎ楷書「激」無料版v7/玉ねぎ楷書激無料版v7改.ttf") format("truetype");
+  src: url("../assets/玉ねぎ楷書「激」無料版v7/玉ねぎ楷書激無料版v7改.ttf")
+    format("truetype");
 }
 
 .masculine-day-page-container {
@@ -29,13 +30,29 @@
   border: 1px solid #444;
 }
 
+.header-left,
+.header-right {
+  flex: 1;
+}
+
+.header-center {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .masculine-day-page-header h2 {
   margin: 0;
   color: #ff4500;
-  font-size: 2.5em;
+  font-size: 2.2em; /* 少し小さくしてバランスをとる */
   font-weight: bold;
-  flex-grow: 1;
-  text-align: center;
   text-shadow: 1px 1px 3px rgba(255, 0, 0, 0.7);
 }
 
@@ -50,7 +67,7 @@
   transition:
     background-color 0.3s ease,
     transform 0.2s ease;
-  min-width: 120px;
+  min-width: 100px; /* ボタンの最小幅を調整 */
 }
 
 .masculine-day-page-header button:hover {

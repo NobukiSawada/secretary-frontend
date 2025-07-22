@@ -22,13 +22,29 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+.header-left,
+.header-right {
+  flex: 1;
+}
+
+.header-center {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .day-page-header h2 {
   margin: 0;
-  color: #2c3e50;
-  font-size: 2em;
+  color: #2c3e50; /* 文字色を濃くしてはっきりさせる */
+  font-size: 1.8em; /* 少し小さくしてバランスをとる */
   font-weight: 600;
-  flex-grow: 1;
-  text-align: center;
 }
 
 .day-page-header button {
@@ -42,7 +58,7 @@
   transition:
     background-color 0.3s ease,
     transform 0.2s ease;
-  min-width: 120px;
+  min-width: 100px; /* ボタンの最小幅を調整 */
 }
 
 .day-page-header button:hover {
