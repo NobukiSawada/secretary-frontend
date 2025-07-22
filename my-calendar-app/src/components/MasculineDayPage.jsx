@@ -195,11 +195,9 @@ const MasculineDayPage = () => {
       const freeTimeEndISO = `${date}T${endTimeStr}:00Z`;
 
       const plannerRequestData = {
-        prev_event_location: "出発地",
-        next_event_location: "目的地",
-        prev_event_end_time: freeTimeStartISO,
-        next_event_start_time: freeTimeEndISO,
-        user_preferences: "短時間で楽しめること",
+        free_time_start: freeTimeStartISO,
+        free_time_end: freeTimeEndISO,
+        user_preferences: "",
       };
 
       console.log(
