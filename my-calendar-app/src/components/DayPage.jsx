@@ -196,7 +196,7 @@ const DayPage = () => {
       const plannerRequestData = {
         free_time_start: freeTimeStartISO,
         free_time_end: freeTimeEndISO,
-        user_preferences: "歩くのは面倒臭い",
+        user_preferences: "寿司を好んでおり、2回の寿司関連の予定が確認できます。",
       };
 
       console.log(
